@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace hw1
+namespace a2
 {
     class Program
     {
-        // BLOSUM 62: https://www.ncbi.nlm.nih.gov/Class/FieldGuide/BLOSUM62.txt
 
         static void Main(string[] args)
         {
+            Blosum62 blosum62 = new Blosum62();
         }
+
     }
 }
