@@ -24,10 +24,13 @@ namespace a2
             }
         }
 
+        public string Name { get; set;}
+
         public Protein() { }
 
-        public Protein(string accession)
+        public Protein(string accession, string name)
         {
+            this.Name = name;
             this.LoadProtein(accession);
         }
 
