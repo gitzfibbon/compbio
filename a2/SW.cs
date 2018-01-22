@@ -54,11 +54,11 @@ namespace a2
             int i = this.scorePosition.Item1;
             int j = this.scorePosition.Item2;
 
+            P1Trace.Add(i);
+            P2Trace.Add(j);
+
             while (true)
             {
-                P1Trace.Add(i);
-                P2Trace.Add(j);
-
                 int current = this.scoreMatrix[i, j];
 
                 // Check which adjacent location caused us to get here
@@ -77,6 +77,18 @@ namespace a2
                     continue;
                 }
 
+                // Check above
+                if (this.scoreMatrix[i - 1, j] > 0 && this.scoreMatrix[i - 1, j] + SW.GapPenalty == current)
+                {
+                    // We could have landed here from the element to the above
+                    i = i - 1;
+
+                    P1Trace.Add(i);
+                    P2Trace.Add(-1); // gap
+
+                    continue;
+                }
+
                 // Check left
                 if (this.scoreMatrix[i, j - 1] > 0 && this.scoreMatrix[i, j - 1] + SW.GapPenalty == current)
                 {
@@ -89,24 +101,12 @@ namespace a2
                     continue;
                 }
 
-                // Check right
-                if (this.scoreMatrix[i - 1, j] > 0 && this.scoreMatrix[i - 1, j] + SW.GapPenalty == current)
-                {
-                    // We could have landed here from the element to the right
-                    i = i - 1;
-
-                    P1Trace.Add(i);
-                    P2Trace.Add(-1); // gap
-
-                    continue;
-                }
-
                 break;
             }
 
             this.P1Trace.Reverse();
             this.P2Trace.Reverse();
-           
+
         }
 
         private void ComputeScoreMatrix()
@@ -205,9 +205,19 @@ namespace a2
         {
             StringBuilder sb = new StringBuilder();
 
-            for (int i = 1; i < Protein1.Encoding.Length; i++)
+            sb.Append("  ");
+            for (int j = 0; j < Protein2.Encoding.Length; j++)
             {
-                for (int j = 1; j < Protein2.Encoding.Length; j++)
+                sb.Append("   " + this.Protein2.Encoding[j] + " ");
+            }
+            sb.AppendLine();
+
+
+            for (int i = 0; i < Protein1.Encoding.Length; i++)
+            {
+                sb.Append(this.Protein1.Encoding[i] + " ");
+
+                for (int j = 0; j < Protein2.Encoding.Length; j++)
                 {
                     sb.Append(this.SpacedInt(this.scoreMatrix[i, j]) + " ");
                 }

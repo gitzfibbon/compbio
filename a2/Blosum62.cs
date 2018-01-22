@@ -52,7 +52,7 @@ namespace a2
             string[] aa = input[0].Split(',');
             for (int i = 1; i < 21; i++)
             {
-                Blosum62.aaMap.Add(aa[i], i);
+                Blosum62.aaMap.Add(aa[i], i-1);
             }
 
             int[,] blosum62 = new int[20, 20];
