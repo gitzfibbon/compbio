@@ -41,9 +41,7 @@ namespace a2
                 {
                     blosum62[i-1, j-1] = Convert.ToInt32(row[j]);
                 }
-
             }
-
         }
     }
 }
