@@ -166,8 +166,17 @@ namespace a2
         private string GetP1Trace()
         {
             StringBuilder sb = new StringBuilder();
+
+            int counter = 0;
             foreach (int x in this.P1Trace)
             {
+                if (counter == 0)
+                {
+                    sb.Append(this.Protein1.Accession + ": ");
+                }
+
+                counter++;
+
                 if (x == -1)
                 {
                     // This is a gap
@@ -177,6 +186,13 @@ namespace a2
                 {
                     sb.Append(this.Protein1.Encoding[x]);
                 }
+
+                if (counter == 60)
+                {
+                    counter = 0;
+                    sb.AppendLine();
+                }
+
             }
 
             return sb.ToString();

@@ -26,10 +26,13 @@ namespace a2
 
         public string Name { get; set;}
 
+        public string Accession { get; set; }
+
         public Protein() { }
 
         public Protein(string accession, string name)
         {
+            this.Accession = accession;
             this.Name = name;
             this.LoadProtein(accession);
         }
