@@ -7,41 +7,65 @@ using System.Threading.Tasks;
 
 namespace a2
 {
-    class Blosum62
+    public static class Blosum62
     {
         // BLOSUM 62: https://www.ncbi.nlm.nih.gov/Class/FieldGuide/BLOSUM62.txt
 
-        public Dictionary<string, int> AAMap
+        private static int[,] matrix = null;
+        private static int[,] Matrix
         {
-            get;
-            private set;
+            get
+            {
+                if (Blosum62.matrix == null)
+                {
+                    Blosum62.LoadBlosum62();
+                }
+
+                return matrix;
+            }
         }
 
-        public Blosum62()
+        private static Dictionary<string, int> aaMap = null;
+        public static Dictionary<string, int> AAMap
         {
-            this.LoadBlosum62();
+            get
+            {
+                if (Blosum62.aaMap == null)
+                {
+                    Blosum62.LoadBlosum62();
+                }
+
+                return Blosum62.aaMap;
+            }
         }
 
-        private void LoadBlosum62()
+        public static int Sigma(string aa1, string aa2)
+        {
+            return Blosum62.Matrix[AAMap[aa1.ToUpper()],AAMap[aa2.ToUpper()]];
+        }
+
+        private static void LoadBlosum62()
         {
             string[] input = File.ReadAllLines(@"data\Blosum62.csv");
 
-            this.AAMap = new Dictionary<string, int>();
+            Blosum62.aaMap = new Dictionary<string, int>();
             string[] aa = input[0].Split(',');
             for (int i = 1; i < 21; i++)
             {
-                this.AAMap.Add(aa[i], i);
+                Blosum62.aaMap.Add(aa[i], i);
             }
-            
+
             int[,] blosum62 = new int[20, 20];
-            for (int i=1; i<21; i++)
+            for (int i = 1; i < 21; i++)
             {
                 string[] row = input[i].Split(',');
                 for (int j = 1; j < 21; j++)
                 {
-                    blosum62[i-1, j-1] = Convert.ToInt32(row[j]);
+                    blosum62[i - 1, j - 1] = Convert.ToInt32(row[j]);
                 }
             }
+
+            Blosum62.matrix = blosum62;
         }
     }
 }

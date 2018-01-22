@@ -10,12 +10,32 @@ namespace a2
     class Program
     {
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Blosum62 blosum62 = new Blosum62();
+            Program.Test();
+        }
+
+        private static void Test()
+        {
+            Protein x1 = new Protein();
+            x1.Encoding = "deadly";
+            Protein x2 = new Protein();
+            x2.Encoding = "ddgearlyk";
+
+            SW sw = new SW(x1, x2);
+            sw.ComputeScore();
+        }
+
+        private static void Run()
+        {
+
+
             Protein MYOD1_HUMAN = new Protein("P15172");
             Protein TAL1_HUMAN = new Protein("P17542");
             Protein MYOD1_MOUSE = new Protein("P10085");
+
+            
+
         }
 
     }

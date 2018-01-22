@@ -9,11 +9,22 @@ namespace a2
 {
     class Protein
     {
+
+        private string encoding;
         public string Encoding
         {
-            get;
-            private set;
+            get
+            {
+                return this.encoding; 
+            }
+
+            set
+            {
+                this.encoding = value.ToUpper();   
+            }
         }
+
+        public Protein() { }
 
         public Protein(string accession)
         {
