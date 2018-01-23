@@ -147,8 +147,8 @@ namespace a2
             sb.AppendLine();
 
             sb.AppendLine("Alignment:");
-            sb.AppendLine(this.GetP1Trace());
-            sb.AppendLine(this.GetP2Trace());
+            sb.AppendLine();
+            sb.AppendLine(this.GetCombinedTraces());
             sb.AppendLine();
 
 
@@ -163,20 +163,49 @@ namespace a2
             File.WriteAllText("result_" + this.Protein1.Name + "--" + this.Protein2.Name + ".txt", sb.ToString());
         }
 
+        private string GetCombinedTraces()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string p1TraceString = this.GetP1Trace();
+            string p2TraceString = this.GetP2Trace();
+
+            int p1StartIndex = this.P1Trace[0];
+            int p2StartIndex = this.P2Trace[0];
+
+            int nameLength = Math.Max(this.Protein1.Name.Length, this.Protein2.Name.Length);
+            string paddedProtein1 = this.Protein1.Name.PadLeft(nameLength);
+            string paddedProtein2 = this.Protein2.Name.PadLeft(nameLength);
+
+            int i = 0;
+            while (true)
+            {
+                sb.Append(paddedProtein1 + ": " + this.SpacedInt(p1StartIndex + (i * 60)) + " ");
+                sb.AppendLine(p1TraceString.Substring(i * 60, Math.Min(60, p1TraceString.Length - (i * 60))));
+
+                sb.Append(paddedProtein2 + ": " + this.SpacedInt(p2StartIndex + (i * 60)) + " ");
+                sb.AppendLine(p2TraceString.Substring(i * 60, Math.Min(60, p2TraceString.Length - (i * 60))));
+
+                sb.AppendLine();
+
+                if ((i + 1) * 60 >= this.P1Trace.Count)
+                {
+                    break;
+                }
+
+                i++;
+            }
+
+            return sb.ToString();
+
+        }
+
         private string GetP1Trace()
         {
             StringBuilder sb = new StringBuilder();
 
-            int counter = 0;
             foreach (int x in this.P1Trace)
             {
-                if (counter == 0)
-                {
-                    sb.Append(this.Protein1.Accession + ": ");
-                }
-
-                counter++;
-
                 if (x == -1)
                 {
                     // This is a gap
@@ -186,13 +215,6 @@ namespace a2
                 {
                     sb.Append(this.Protein1.Encoding[x]);
                 }
-
-                if (counter == 60)
-                {
-                    counter = 0;
-                    sb.AppendLine();
-                }
-
             }
 
             return sb.ToString();
