@@ -8,10 +8,46 @@ namespace a2
 {
     class Probability
     {
+        public static double EmpiricalProbability(Protein primary, Protein secondary, int numPermutations)
+        {
+            SW sw = new SW(primary, secondary);
+            sw.ComputeScore(false);
+            int score = sw.Score;
+
+            double k = 1;
+            double N = numPermutations + 1;
+
+            for (int i = 0; i < numPermutations; i++)
+            {
+                Protein pSecondary = Permute(secondary);
+
+                sw = new SW(primary, pSecondary);
+                sw.ComputeScore(false);
+
+                if (sw.Score >= score)
+                {
+                    k++;
+                }
+            }
+
+            return k / N;
+        }
+
+        private static int PermuteAndScore(Protein primary, Protein secondary)
+        {
+            // Permute the secondary protein
+            Protein pSecondary = Permute(secondary);
+
+            // Align the two proteins
+            SW sw = new SW(primary, pSecondary);
+            sw.ComputeScore(false);
+            return sw.Score;
+        }
+
         /// <summary>
         /// Create a permutation of this protein
         /// </summary>
-        public static Protein Permute(Protein protein)
+        private static Protein Permute(Protein protein)
         {
             Random r = new Random();
             char[] permutation = protein.Encoding.ToCharArray();
@@ -32,5 +68,7 @@ namespace a2
 
             return newProtein;
         }
+
+
     }
 }

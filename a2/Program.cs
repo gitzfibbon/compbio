@@ -27,12 +27,7 @@ namespace a2
             x2.Name = "x2";
             x2.Accession = "D002";
 
-            Protein px2 = Probability.Permute(x2);
-            string x = px2.Encoding;
-
-            //SW sw = new SW(x1, x2);
-            //sw.ComputeScore();
-            //sw.PrintResult(true);
+            double result = Probability.EmpiricalProbability(x1, x2, 1000);
         }
 
         private static void Test0()

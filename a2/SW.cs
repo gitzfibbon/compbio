@@ -45,10 +45,13 @@ namespace a2
             this.Protein2 = protein2;
         }
 
-        public int ComputeScore()
+        public int ComputeScore(bool computeTraceback = true)
         {
             this.ComputeScoreMatrix();
-            this.ComputeTraceback();
+            if (computeTraceback)
+            {
+                this.ComputeTraceback();
+            }
 
             return this.Score;
         }
