@@ -12,12 +12,22 @@ namespace a2
     /// </summary>
     class SW
     {
+        public enum Direction
+        {
+            Reset = 0,
+            FromLeft,
+            FromAbove,
+            FromDiagonal,
+            
+        }
+
         public const int GapPenalty = -4;
 
         public Protein Protein1 { get; private set; }
         public Protein Protein2 { get; private set; }
 
         private int[,] scoreMatrix { get; set; }
+        private Direction[,] traceMatrix { get; set; }
 
         public int Score { get; private set; }
 
@@ -59,13 +69,117 @@ namespace a2
 
             while (true)
             {
+                if (this.traceMatrix[i,j] == Direction.FromDiagonal)
+                {
+                    i = i - 1;
+                    j = j - 1;
+
+                    if (i == 0 || j == 0)
+                    {
+                        break;
+                    }
+
+                    P1Trace.Add(i);
+                    P2Trace.Add(j);
+                }
+                else if (this.traceMatrix[i, j] == Direction.FromAbove)
+                {
+                    i = i - 1;
+
+                    if (i == 0 || j == 0)
+                    {
+                        break;
+                    }
+
+                    P1Trace.Add(i);
+                    P2Trace.Add(-1);
+                }
+                else if (this.traceMatrix[i, j] == Direction.FromLeft)
+                {
+                    j = j - 1;
+
+                    if (i == 0 || j == 0)
+                    {
+                        break;
+                    }
+
+                    P1Trace.Add(-1);
+                    P2Trace.Add(j);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            this.P1Trace.Reverse();
+            this.P2Trace.Reverse();
+
+        }
+
+
+
+        private void ComputeTraceback2()
+        {
+            this.P1Trace = new List<int>();
+            this.P2Trace = new List<int>();
+
+            if (this.scoreMatrix == null) { return; }
+
+            // Start at the location of the max score and work backwards
+            int i = this.scorePosition.Item1;
+            int j = this.scorePosition.Item2;
+
+            P1Trace.Add(i);
+            P2Trace.Add(j);
+
+            while (true)
+            {
                 int current = this.scoreMatrix[i, j];
 
                 // Check which adjacent location caused us to get here
 
+                // Check above
+                int x = this.scoreMatrix[i - 1, j];
+                if (this.scoreMatrix[i - 1, j] + SW.GapPenalty == current)
+                {
+                    // We could have landed here from the element to the above
+                    i = i - 1;
+
+                    P1Trace.Add(i);
+                    P2Trace.Add(-1); // gap
+
+                    if (this.scoreMatrix[i - 1, j] == 0)
+                    {
+                        break;
+                    }
+
+                    continue;
+                }
+
+                // Check left
+                x = this.scoreMatrix[i, j - 1];
+                if (this.scoreMatrix[i, j - 1] + SW.GapPenalty == current)
+                {
+                    // We could have landed here from the element to the left
+                    j = j - 1;
+
+                    P1Trace.Add(-1); // gap
+                    P2Trace.Add(j);
+
+                    if (this.scoreMatrix[i, j - 1] == 0)
+                    {
+                        break;
+                    }
+
+                    continue;
+                }
 
                 // Check diagonal
-                if (this.scoreMatrix[i - 1, j - 1] > 0 && this.scoreMatrix[i - 1, j - 1] + Blosum62.Sigma(Protein1.Encoding[i].ToString(), Protein2.Encoding[j].ToString()) == current)
+                int a = this.scoreMatrix[i - 1, j - 1];
+                int b = Blosum62.Sigma(Protein1.Encoding[i - 1].ToString(), Protein2.Encoding[j - 1].ToString());
+                x = a + b;
+                if (this.scoreMatrix[i - 1, j - 1] + Blosum62.Sigma(Protein1.Encoding[i - 1].ToString(), Protein2.Encoding[j - 1].ToString()) == current)
                 {
                     // We could have landed here from the diagonal adjacent element
                     i = i - 1;
@@ -74,29 +188,10 @@ namespace a2
                     P1Trace.Add(i);
                     P2Trace.Add(j);
 
-                    continue;
-                }
-
-                // Check above
-                if (this.scoreMatrix[i - 1, j] > 0 && this.scoreMatrix[i - 1, j] + SW.GapPenalty == current)
-                {
-                    // We could have landed here from the element to the above
-                    i = i - 1;
-
-                    P1Trace.Add(i);
-                    P2Trace.Add(-1); // gap
-
-                    continue;
-                }
-
-                // Check left
-                if (this.scoreMatrix[i, j - 1] > 0 && this.scoreMatrix[i, j - 1] + SW.GapPenalty == current)
-                {
-                    // We could have landed here from the element to the left
-                    j = j - 1;
-
-                    P1Trace.Add(-1); // gap
-                    P2Trace.Add(j);
+                    if (this.scoreMatrix[i - 1, j - 1] == 0)
+                    {
+                        break;
+                    }
 
                     continue;
                 }
@@ -112,25 +207,44 @@ namespace a2
         private void ComputeScoreMatrix()
         {
             // Will be initalized to all zeros since that is the default int value in c#
-            this.scoreMatrix = new int[Protein1.Encoding.Length, Protein2.Encoding.Length];
+            this.scoreMatrix = new int[Protein1.Encoding.Length + 1, Protein2.Encoding.Length + 1];
+            this.traceMatrix = new Direction[Protein1.Encoding.Length + 1, Protein2.Encoding.Length + 1];
 
-            for (int i = 1; i < Protein1.Encoding.Length; i++)
+            for (int i = 0; i < Protein1.Encoding.Length; i++)
             {
-                for (int j = 1; j < Protein2.Encoding.Length; j++)
+                for (int j = 0; j < Protein2.Encoding.Length; j++)
                 {
-                    int v1 = scoreMatrix[i - 1, j - 1] + Blosum62.Sigma(Protein1.Encoding[i].ToString(), Protein2.Encoding[j].ToString());
-                    int v2 = scoreMatrix[i - 1, j] + SW.GapPenalty;
-                    int v3 = scoreMatrix[i, j - 1] + SW.GapPenalty;
+                    int v1 = scoreMatrix[i, j] + Blosum62.Sigma(Protein1.Encoding[i].ToString(), Protein2.Encoding[j].ToString());
+                    int v2 = scoreMatrix[i, j + 1] + SW.GapPenalty;
+                    int v3 = scoreMatrix[i + 1, j] + SW.GapPenalty;
                     int v4 = 0;
 
                     int max = Math.Max(Math.Max(v1, v2), Math.Max(v3, v4));
-                    this.scoreMatrix[i, j] = max;
+                    this.scoreMatrix[i + 1, j + 1] = max;
 
                     // Update with the new score
                     if (max > this.Score)
                     {
                         this.Score = max;
-                        this.scorePosition = new Tuple<int, int>(i, j);
+                        this.scorePosition = new Tuple<int, int>(i + 1, j + 1);
+                    }
+
+                    // Update the traceback matrix
+                    if (v1 == max)
+                    {
+                        this.traceMatrix[i + 1, j + 1] = Direction.FromDiagonal;
+                    }
+                    else if (v2 == max)
+                    {
+                        this.traceMatrix[i + 1, j + 1] = Direction.FromAbove;
+                    }
+                    else if (v3 == max)
+                    {
+                        this.traceMatrix[i + 1, j + 1] = Direction.FromLeft;
+                    }
+                    else
+                    {
+                        this.traceMatrix[i + 1, j + 1] = Direction.Reset;
                     }
                 }
             }
@@ -143,6 +257,10 @@ namespace a2
         {
             StringBuilder sb = new StringBuilder();
 
+            sb.AppendLine(this.Protein1.Name + " " + this.Protein1.Accession);
+            sb.AppendLine(this.Protein2.Name + " " + this.Protein2.Accession);
+            sb.AppendLine();
+
             sb.AppendLine("Score: " + this.Score);
             sb.AppendLine();
 
@@ -151,6 +269,10 @@ namespace a2
             sb.AppendLine(this.GetCombinedTraces());
             sb.AppendLine();
 
+            //sb.AppendLine("Traceback:");
+            //sb.AppendLine();
+            //sb.AppendLine(this.GetTraceMatrix());
+            //sb.AppendLine();
 
             if (includeScoringMatrix)
             {
@@ -173,17 +295,17 @@ namespace a2
             int p1StartIndex = this.P1Trace[0];
             int p2StartIndex = this.P2Trace[0];
 
-            int nameLength = Math.Max(this.Protein1.Name.Length, this.Protein2.Name.Length);
-            string paddedProtein1 = this.Protein1.Name.PadLeft(nameLength);
-            string paddedProtein2 = this.Protein2.Name.PadLeft(nameLength);
+            int idLength = Math.Max(this.Protein1.Accession.Length, this.Protein2.Accession.Length);
+            string paddedProtein1 = this.Protein1.Accession.PadLeft(idLength);
+            string paddedProtein2 = this.Protein2.Accession.PadLeft(idLength);
 
             int i = 0;
             while (true)
             {
-                sb.Append(paddedProtein1 + ": " + this.SpacedInt(p1StartIndex + (i * 60)) + " ");
+                sb.Append(paddedProtein1 + ": " + (p1StartIndex + (i * 60)).ToString().PadLeft(4) + " ");
                 sb.AppendLine(p1TraceString.Substring(i * 60, Math.Min(60, p1TraceString.Length - (i * 60))));
 
-                sb.Append(paddedProtein2 + ": " + this.SpacedInt(p2StartIndex + (i * 60)) + " ");
+                sb.Append(paddedProtein2 + ": " + (p2StartIndex + (i * 60)).ToString().PadLeft(4) + " ");
                 sb.AppendLine(p2TraceString.Substring(i * 60, Math.Min(60, p2TraceString.Length - (i * 60))));
 
                 sb.AppendLine();
@@ -213,7 +335,7 @@ namespace a2
                 }
                 else
                 {
-                    sb.Append(this.Protein1.Encoding[x]);
+                    sb.Append(this.Protein1.Encoding[x - 1]);
                 }
             }
 
@@ -232,7 +354,7 @@ namespace a2
                 }
                 else
                 {
-                    sb.Append(this.Protein2.Encoding[x]);
+                    sb.Append(this.Protein2.Encoding[x - 1]);
                 }
             }
 
@@ -243,21 +365,27 @@ namespace a2
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("  ");
+            sb.Append("       ");
             for (int j = 0; j < Protein2.Encoding.Length; j++)
             {
                 sb.Append("   " + this.Protein2.Encoding[j] + " ");
             }
             sb.AppendLine();
 
-
-            for (int i = 0; i < Protein1.Encoding.Length; i++)
+            for (int i = 0; i < Protein1.Encoding.Length + 1; i++)
             {
-                sb.Append(this.Protein1.Encoding[i] + " ");
-
-                for (int j = 0; j < Protein2.Encoding.Length; j++)
+                if (i > 0)
                 {
-                    sb.Append(this.SpacedInt(this.scoreMatrix[i, j]) + " ");
+                    sb.Append(this.Protein1.Encoding[i - 1] + " ");
+                }
+                else
+                {
+                    sb.Append("  ");
+                }
+
+                for (int j = 0; j < Protein2.Encoding.Length + 1; j++)
+                {
+                    sb.Append((this.scoreMatrix[i, j]).ToString().PadLeft(4) + " ");
                 }
 
                 sb.AppendLine();
@@ -267,20 +395,54 @@ namespace a2
 
         }
 
-        /// <summary>
-        /// Return a string with spacing so that the scoring matrix is nicely aligned when printing
-        /// </summary>
-        private string SpacedInt(int i)
+
+        private string GetTraceMatrix()
         {
-            // Assume i is non-negative
-            // Max i value is 9999
+            StringBuilder sb = new StringBuilder();
 
-            if (i < 10) { return "   " + i; }
-            if (i < 100) { return "  " + i; }
-            if (i < 1000) { return " " + i; }
-            if (i < 10000) { return "" + i; }
+            sb.Append("       ");
+            for (int j = 0; j < Protein2.Encoding.Length; j++)
+            {
+                sb.Append("   " + this.Protein2.Encoding[j] + " ");
+            }
+            sb.AppendLine();
 
-            return i.ToString();
+            for (int i = 0; i < Protein1.Encoding.Length + 1; i++)
+            {
+                if (i > 0)
+                {
+                    sb.Append(this.Protein1.Encoding[i - 1] + " ");
+                }
+                else
+                {
+                    sb.Append("  ");
+                }
+
+                for (int j = 0; j < Protein2.Encoding.Length + 1; j++)
+                {
+                    sb.Append((this.GetTraceSymbol(this.traceMatrix[i, j])).PadLeft(4) + " ");
+                }
+
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+
+        }
+
+        private string GetTraceSymbol(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.FromLeft:
+                    return "-";
+                case Direction.FromAbove:
+                    return "|";
+                case Direction.FromDiagonal:
+                    return @"\";
+                default:
+                    return "0";
+            }
         }
 
         #endregion

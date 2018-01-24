@@ -12,7 +12,23 @@ namespace a2
 
         public static void Main(string[] args)
         {
-            Program.Test2();
+            Program.Test0();
+        }
+
+        private static void Test0()
+        {
+            Protein x1 = new Protein();
+            x1.Encoding = "arrllarr"; 
+            x1.Name = "x1";
+            x1.Accession = "X001";
+            Protein x2 = new Protein();
+            x2.Encoding = "arrearr";
+            x2.Name = "x2";
+            x2.Accession = "X002";
+
+            SW sw = new SW(x1, x2);
+            sw.ComputeScore();
+            sw.PrintResult(true);
         }
 
         private static void Test1()
@@ -20,9 +36,11 @@ namespace a2
             Protein x1 = new Protein();
             x1.Encoding = "deadly";
             x1.Name = "x1";
+            x1.Accession = "D001";
             Protein x2 = new Protein();
             x2.Encoding = "ddgearlyk";
             x2.Name = "x2";
+            x2.Accession = "D002";
 
             SW sw = new SW(x1, x2);
             sw.ComputeScore();
