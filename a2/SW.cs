@@ -21,7 +21,7 @@ namespace a2
             
         }
 
-        public const int GapPenalty = -4;
+        public const int GapPenalty = -1;
 
         public Protein Protein1 { get; private set; }
         public Protein Protein2 { get; private set; }
@@ -55,7 +55,7 @@ namespace a2
 
             return this.Score;
         }
-
+        
         private void ComputeTraceback()
         {
             this.P1Trace = new List<int>();
@@ -67,77 +67,13 @@ namespace a2
             int i = this.scorePosition.Item1;
             int j = this.scorePosition.Item2;
 
-            P1Trace.Add(i);
-            P2Trace.Add(j);
-
             while (true)
             {
-                if (this.traceMatrix[i,j] == Direction.FromDiagonal)
-                {
-                    i = i - 1;
-                    j = j - 1;
-
-                    if (i == 0 || j == 0)
-                    {
-                        break;
-                    }
-
-                    P1Trace.Add(i);
-                    P2Trace.Add(j);
-                }
-                else if (this.traceMatrix[i, j] == Direction.FromAbove)
-                {
-                    i = i - 1;
-
-                    if (i == 0 || j == 0)
-                    {
-                        break;
-                    }
-
-                    P1Trace.Add(i);
-                    P2Trace.Add(-1);
-                }
-                else if (this.traceMatrix[i, j] == Direction.FromLeft)
-                {
-                    j = j - 1;
-
-                    if (i == 0 || j == 0)
-                    {
-                        break;
-                    }
-
-                    P1Trace.Add(-1);
-                    P2Trace.Add(j);
-                }
-                else
+                if (this.scoreMatrix[i, j] == 0)
                 {
                     break;
                 }
-            }
 
-            this.P1Trace.Reverse();
-            this.P2Trace.Reverse();
-
-        }
-
-
-
-        private void ComputeTraceback2()
-        {
-            this.P1Trace = new List<int>();
-            this.P2Trace = new List<int>();
-
-            if (this.scoreMatrix == null) { return; }
-
-            // Start at the location of the max score and work backwards
-            int i = this.scorePosition.Item1;
-            int j = this.scorePosition.Item2;
-
-            P1Trace.Add(i);
-            P2Trace.Add(j);
-
-            while (true)
-            {
                 int current = this.scoreMatrix[i, j];
 
                 // Check which adjacent location caused us to get here
@@ -146,16 +82,11 @@ namespace a2
                 int x = this.scoreMatrix[i - 1, j];
                 if (this.scoreMatrix[i - 1, j] + SW.GapPenalty == current)
                 {
-                    // We could have landed here from the element to the above
-                    i = i - 1;
-
                     P1Trace.Add(i);
                     P2Trace.Add(-1); // gap
-
-                    if (this.scoreMatrix[i - 1, j] == 0)
-                    {
-                        break;
-                    }
+                    
+                    // We could have landed here from the element to the above
+                    i = i - 1;
 
                     continue;
                 }
@@ -164,16 +95,11 @@ namespace a2
                 x = this.scoreMatrix[i, j - 1];
                 if (this.scoreMatrix[i, j - 1] + SW.GapPenalty == current)
                 {
-                    // We could have landed here from the element to the left
-                    j = j - 1;
-
                     P1Trace.Add(-1); // gap
                     P2Trace.Add(j);
 
-                    if (this.scoreMatrix[i, j - 1] == 0)
-                    {
-                        break;
-                    }
+                    // We could have landed here from the element to the left
+                    j = j - 1;
 
                     continue;
                 }
@@ -184,17 +110,12 @@ namespace a2
                 x = a + b;
                 if (this.scoreMatrix[i - 1, j - 1] + Blosum62.Sigma(Protein1.Encoding[i - 1].ToString(), Protein2.Encoding[j - 1].ToString()) == current)
                 {
-                    // We could have landed here from the diagonal adjacent element
-                    i = i - 1;
-                    j = j - 1;
-
                     P1Trace.Add(i);
                     P2Trace.Add(j);
 
-                    if (this.scoreMatrix[i - 1, j - 1] == 0)
-                    {
-                        break;
-                    }
+                    // We could have landed here from the diagonal adjacent element
+                    i = i - 1;
+                    j = j - 1;
 
                     continue;
                 }
@@ -272,10 +193,10 @@ namespace a2
             sb.AppendLine(this.GetCombinedTraces());
             sb.AppendLine();
 
-            //sb.AppendLine("Traceback:");
-            //sb.AppendLine();
-            //sb.AppendLine(this.GetTraceMatrix());
-            //sb.AppendLine();
+            sb.AppendLine("Traceback:");
+            sb.AppendLine();
+            sb.AppendLine(this.GetTraceMatrix());
+            sb.AppendLine();
 
             if (includeScoringMatrix)
             {

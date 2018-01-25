@@ -12,7 +12,7 @@ namespace a2
 
         public static void Main(string[] args)
         {
-            PermuteTest0();
+            //PermuteTest0();
             Test0();
         }
 
@@ -33,11 +33,11 @@ namespace a2
         private static void Test0()
         {
             Protein x1 = new Protein();
-            x1.Encoding = "arrllarr"; 
+            x1.Encoding = "ara"; 
             x1.Name = "x1";
             x1.Accession = "X001";
             Protein x2 = new Protein();
-            x2.Encoding = "arrearr";
+            x2.Encoding = "aa";
             x2.Name = "x2";
             x2.Accession = "X002";
 
