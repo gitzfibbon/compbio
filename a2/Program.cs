@@ -13,7 +13,7 @@ namespace a2
         public static void Main(string[] args)
         {
             //IIIa();
-            IIIbc();
+            IIIbce();
         }
 
         private static void IIIa()
@@ -36,7 +36,7 @@ namespace a2
         }
 
 
-        private static void IIIbc()
+        private static void IIIbce()
         {
             List<Protein> proteins = new List<Protein>();
             proteins.Add(new Protein("P15172", "MYOD1_HUMAN"));
@@ -50,18 +50,27 @@ namespace a2
             proteins.Add(new Protein("Q10574", "LIN32_CAEEL"));
             proteins.Add(new Protein("O95363", "SYFM_HUMAN"));
 
+            string[,] resultMatrix = new string[11, 11];
+            for (int i =1; i<11;i++)
+            {
+                resultMatrix[0, i] = proteins[i-1].Accession;
+            }
+
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < proteins.Count; i++)
             {
+                resultMatrix[i+1, 0] = proteins[i].Accession;
+
                 for (int j = i + 1; j < proteins.Count; j++)
                 {
                     SW sw = new SW(proteins[i], proteins[j]);
                     sw.ComputeScore();
+                    resultMatrix[i + 1, j + 1] = sw.Score.ToString();
                     sb.AppendLine("--------------------");
 
                     if (proteins[i].Accession == "P15172" && (proteins[j].Accession == "Q10574" || proteins[j].Accession == "O95363"))
                     {
-                        int numPermutations = 999;
+                        int numPermutations = 1;
                         double pValue = Probability.EmpiricalProbability(proteins[i], proteins[j], numPermutations);
 
                         sb.AppendLine(sw.PrintResult(pValue: pValue, numPermutations: numPermutations));
@@ -75,6 +84,18 @@ namespace a2
 
             File.WriteAllText("IIIbc.txt", sb.ToString());
 
+            StringBuilder sb2 = new StringBuilder();
+            for (int i=0; i<11; i++)
+            {
+                for (int j=0; j<11; j++)
+                {
+                    sb2.Append(resultMatrix[i, j] + ",");
+                }
+
+                sb2.AppendLine();
+            }
+
+            File.WriteAllText("IIIe.csv", sb2.ToString());
         }
 
 
