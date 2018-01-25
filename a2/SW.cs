@@ -45,7 +45,7 @@ namespace a2
 
             return this.Score;
         }
-        
+
         private void ComputeTraceback()
         {
             this.P1Trace = new List<int>();
@@ -74,7 +74,7 @@ namespace a2
                 {
                     P1Trace.Add(i);
                     P2Trace.Add(-1); // gap
-                    
+
                     // We could have landed here from the element to the above
                     i = i - 1;
 
@@ -148,7 +148,7 @@ namespace a2
         #region Printing Methods
 
 
-        public void PrintResult(double pValue = 0, int numPermutations = 0,  bool includeScoringMatrix = false)
+        public string PrintResult(double pValue = 0, int numPermutations = 0, bool includeScoringMatrix = false, string fileName = null)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -177,7 +177,13 @@ namespace a2
 
             Console.WriteLine(sb.ToString());
 
-            File.WriteAllText("result_" + this.Protein1.Name + "--" + this.Protein2.Name + ".txt", sb.ToString());
+            if (String.IsNullOrWhiteSpace(fileName))
+            {
+                fileName = "result_" + this.Protein1.Name + "--" + this.Protein2.Name + ".txt";
+            }
+            File.WriteAllText(fileName, sb.ToString());
+
+            return sb.ToString();
         }
 
         private string GetCombinedTraces()

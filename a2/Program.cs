@@ -12,13 +12,11 @@ namespace a2
 
         public static void Main(string[] args)
         {
-            Deliverable_a();
-
-
-
+            //IIIa();
+            IIIbc();
         }
 
-        private static void Deliverable_a()
+        private static void IIIa()
         {
             Protein x1 = new Protein();
             x1.Encoding = "deadly";
@@ -34,13 +32,56 @@ namespace a2
 
             SW sw = new SW(x1, x2);
             sw.ComputeScore();
-            sw.PrintResult(pValue:pValue, numPermutations:numPermutations, includeScoringMatrix: true);
+            sw.PrintResult(pValue: pValue, numPermutations: numPermutations, includeScoringMatrix: true, fileName: "IIIa.txt");
         }
+
+
+        private static void IIIbc()
+        {
+            List<Protein> proteins = new List<Protein>();
+            proteins.Add(new Protein("P15172", "MYOD1_HUMAN"));
+            proteins.Add(new Protein("P17542", "TAL1_HUMAN"));
+            proteins.Add(new Protein("P10085", "MYOD1_MOUSE"));
+            proteins.Add(new Protein("P16075", "MYOD1_CHICK"));
+            proteins.Add(new Protein("P13904", "MYODA_XENLA"));
+            proteins.Add(new Protein("Q90477", "MYOD1_DANRE"));
+            proteins.Add(new Protein("Q8IU24", "Q8IU24_BRABE"));
+            proteins.Add(new Protein("P22816", "MYOD_DROME"));
+            proteins.Add(new Protein("Q10574", "LIN32_CAEEL"));
+            proteins.Add(new Protein("O95363", "SYFM_HUMAN"));
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < proteins.Count; i++)
+            {
+                for (int j = i + 1; j < proteins.Count; j++)
+                {
+                    SW sw = new SW(proteins[i], proteins[j]);
+                    sw.ComputeScore();
+                    sb.AppendLine("--------------------");
+
+                    if (proteins[i].Accession == "P15172" && (proteins[j].Accession == "Q10574" || proteins[j].Accession == "O95363"))
+                    {
+                        int numPermutations = 999;
+                        double pValue = Probability.EmpiricalProbability(proteins[i], proteins[j], numPermutations);
+
+                        sb.AppendLine(sw.PrintResult(pValue: pValue, numPermutations: numPermutations));
+                    }
+                    else
+                    {
+                        sb.AppendLine(sw.PrintResult());
+                    }
+                }
+            }
+
+            File.WriteAllText("IIIbc.txt", sb.ToString());
+
+        }
+
 
         private static void Test0()
         {
             Protein x1 = new Protein();
-            x1.Encoding = "ara"; 
+            x1.Encoding = "ara";
             x1.Name = "x1";
             x1.Accession = "X001";
             Protein x2 = new Protein();
@@ -50,7 +91,7 @@ namespace a2
 
             SW sw = new SW(x1, x2);
             sw.ComputeScore();
-            sw.PrintResult(includeScoringMatrix:true);
+            sw.PrintResult(includeScoringMatrix: true);
         }
 
         private static void Test1()
