@@ -12,22 +12,12 @@ namespace a2
     /// </summary>
     class SW
     {
-        public enum Direction
-        {
-            Reset = 0,
-            FromLeft,
-            FromAbove,
-            FromDiagonal,
-            
-        }
-
-        public const int GapPenalty = -1;
+        public const int GapPenalty = -4;
 
         public Protein Protein1 { get; private set; }
         public Protein Protein2 { get; private set; }
 
         private int[,] scoreMatrix { get; set; }
-        private Direction[,] traceMatrix { get; set; }
 
         public int Score { get; private set; }
 
@@ -132,7 +122,6 @@ namespace a2
         {
             // Will be initalized to all zeros since that is the default int value in c#
             this.scoreMatrix = new int[Protein1.Encoding.Length + 1, Protein2.Encoding.Length + 1];
-            this.traceMatrix = new Direction[Protein1.Encoding.Length + 1, Protein2.Encoding.Length + 1];
 
             for (int i = 0; i < Protein1.Encoding.Length; i++)
             {
@@ -152,24 +141,6 @@ namespace a2
                         this.Score = max;
                         this.scorePosition = new Tuple<int, int>(i + 1, j + 1);
                     }
-
-                    // Update the traceback matrix
-                    if (v1 == max)
-                    {
-                        this.traceMatrix[i + 1, j + 1] = Direction.FromDiagonal;
-                    }
-                    else if (v2 == max)
-                    {
-                        this.traceMatrix[i + 1, j + 1] = Direction.FromAbove;
-                    }
-                    else if (v3 == max)
-                    {
-                        this.traceMatrix[i + 1, j + 1] = Direction.FromLeft;
-                    }
-                    else
-                    {
-                        this.traceMatrix[i + 1, j + 1] = Direction.Reset;
-                    }
                 }
             }
         }
@@ -177,7 +148,7 @@ namespace a2
         #region Printing Methods
 
 
-        public void PrintResult(bool includeScoringMatrix = false)
+        public void PrintResult(double pValue = 0, int numPermutations = 0,  bool includeScoringMatrix = false)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -189,14 +160,14 @@ namespace a2
             sb.AppendLine();
 
             sb.AppendLine("Alignment:");
-            sb.AppendLine();
             sb.AppendLine(this.GetCombinedTraces());
-            sb.AppendLine();
 
-            sb.AppendLine("Traceback:");
-            sb.AppendLine();
-            sb.AppendLine(this.GetTraceMatrix());
-            sb.AppendLine();
+            if (pValue > 0)
+            {
+                sb.AppendLine("P-Value: " + pValue.ToString("E5"));
+                sb.AppendLine("Permutations: " + numPermutations);
+                sb.AppendLine();
+            }
 
             if (includeScoringMatrix)
             {
@@ -317,56 +288,6 @@ namespace a2
 
             return sb.ToString();
 
-        }
-
-
-        private string GetTraceMatrix()
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("       ");
-            for (int j = 0; j < Protein2.Encoding.Length; j++)
-            {
-                sb.Append("   " + this.Protein2.Encoding[j] + " ");
-            }
-            sb.AppendLine();
-
-            for (int i = 0; i < Protein1.Encoding.Length + 1; i++)
-            {
-                if (i > 0)
-                {
-                    sb.Append(this.Protein1.Encoding[i - 1] + " ");
-                }
-                else
-                {
-                    sb.Append("  ");
-                }
-
-                for (int j = 0; j < Protein2.Encoding.Length + 1; j++)
-                {
-                    sb.Append((this.GetTraceSymbol(this.traceMatrix[i, j])).PadLeft(4) + " ");
-                }
-
-                sb.AppendLine();
-            }
-
-            return sb.ToString();
-
-        }
-
-        private string GetTraceSymbol(Direction direction)
-        {
-            switch (direction)
-            {
-                case Direction.FromLeft:
-                    return "-";
-                case Direction.FromAbove:
-                    return "|";
-                case Direction.FromDiagonal:
-                    return @"\";
-                default:
-                    return "0";
-            }
         }
 
         #endregion

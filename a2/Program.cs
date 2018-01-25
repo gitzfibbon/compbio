@@ -12,22 +12,29 @@ namespace a2
 
         public static void Main(string[] args)
         {
-            //PermuteTest0();
-            Test0();
+            Deliverable_a();
+
+
+
         }
 
-        private static void PermuteTest0()
+        private static void Deliverable_a()
         {
             Protein x1 = new Protein();
             x1.Encoding = "deadly";
-            x1.Name = "x1";
-            x1.Accession = "D001";
+            x1.Name = "deadly";
+            x1.Accession = "x1";
             Protein x2 = new Protein();
             x2.Encoding = "ddgearlyk";
-            x2.Name = "x2";
-            x2.Accession = "D002";
+            x2.Name = "ddgearlyk";
+            x2.Accession = "x2";
 
-            double result = Probability.EmpiricalProbability(x1, x2, 1000);
+            int numPermutations = 999;
+            double pValue = Probability.EmpiricalProbability(x1, x2, numPermutations);
+
+            SW sw = new SW(x1, x2);
+            sw.ComputeScore();
+            sw.PrintResult(pValue:pValue, numPermutations:numPermutations, includeScoringMatrix: true);
         }
 
         private static void Test0()
@@ -43,7 +50,7 @@ namespace a2
 
             SW sw = new SW(x1, x2);
             sw.ComputeScore();
-            sw.PrintResult(true);
+            sw.PrintResult(includeScoringMatrix:true);
         }
 
         private static void Test1()
@@ -59,7 +66,7 @@ namespace a2
 
             SW sw = new SW(x1, x2);
             sw.ComputeScore();
-            sw.PrintResult(true);
+            sw.PrintResult(includeScoringMatrix: true);
         }
 
         private static void Test2()
@@ -69,7 +76,7 @@ namespace a2
 
             SW sw = new SW(HBB_HUMAN, Q14SN0_APIME);
             sw.ComputeScore();
-            sw.PrintResult(true);
+            sw.PrintResult(includeScoringMatrix: true);
         }
 
         private static void Run()
@@ -86,7 +93,6 @@ namespace a2
             Protein MYOD_DROME = new Protein("P22816", "MYOD_DROME");
             Protein LIN32_CAEEL = new Protein("Q10574", "LIN32_CAEEL");
             Protein SYFM_HUMAN = new Protein("O95363", "SYFM_HUMAN");
-
 
 
         }

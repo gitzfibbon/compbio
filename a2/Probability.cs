@@ -8,14 +8,17 @@ namespace a2
 {
     class Probability
     {
+        /// <summary>
+        /// Compare primary to secondary score with numPermutations permutations of secondary
+        /// </summary>
         public static double EmpiricalProbability(Protein primary, Protein secondary, int numPermutations)
         {
             SW sw = new SW(primary, secondary);
             sw.ComputeScore(false);
             int score = sw.Score;
 
-            double k = 1;
-            double N = numPermutations + 1;
+            double k = 0;
+            double N = numPermutations;
 
             for (int i = 0; i < numPermutations; i++)
             {
@@ -24,24 +27,14 @@ namespace a2
                 sw = new SW(primary, pSecondary);
                 sw.ComputeScore(false);
 
+                // Count how often the permutation score is greater than the primary/secondary score
                 if (sw.Score >= score)
                 {
                     k++;
                 }
             }
 
-            return k / N;
-        }
-
-        private static int PermuteAndScore(Protein primary, Protein secondary)
-        {
-            // Permute the secondary protein
-            Protein pSecondary = Permute(secondary);
-
-            // Align the two proteins
-            SW sw = new SW(primary, pSecondary);
-            sw.ComputeScore(false);
-            return sw.Score;
+            return (k+1) / (N+1);
         }
 
         /// <summary>
