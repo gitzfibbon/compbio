@@ -12,6 +12,9 @@ namespace a3
         static void Main(string[] args)
         {
             double[] data = ReadData(@"data\input1.txt");
+
+            EM em = new EM(data, 3);
+            em.Run();
         }
 
         private static double[] ReadData(string inputFile)
