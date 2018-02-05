@@ -14,11 +14,17 @@ namespace a3
 
         public List<double[]> means { get; private set; }
 
+        public double tau { get; private set; }
+
+        public double sigma { get; private set; }
+
         public EM(double[] data, int numClusters)
         {
             this.x = data;
             this.k = numClusters;
             this.means = new List<double[]>();
+            this.tau = 1 / this.k; // fixed
+            this.sigma = 1; // fixed
 
         }
 
