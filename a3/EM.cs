@@ -39,6 +39,20 @@ namespace a3
 
         }
 
+        private void M()
+        {
+
+        }
+
+        private double Likelihood(double xi, double mu, double sigma)
+        {
+            double sigma_squared = Math.Pow(sigma, 2);
+            double e_power = -1 * Math.Pow(xi - mu, 2) / (2 * sigma_squared);
+            double likelihood = Math.Exp(e_power) / Math.Sqrt(2 * Math.PI * sigma_squared);
+
+            return likelihood;
+        }
+
         /// <summary>
         /// Initialization step to start EM
         /// </summary>
