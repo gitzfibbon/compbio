@@ -40,5 +40,12 @@ namespace a3_tests
             em.E();
             em.M();
         }
+
+        [TestMethod]
+        public void TestEMRun()
+        {
+            EM em = new EM(new double[5] { -2, -1, 0, 1, 2 }, 2);
+            em.Run();
+        }
     }
 }

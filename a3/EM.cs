@@ -20,6 +20,8 @@ namespace a3
 
         public List<double[,]> e_steps { get; private set; }
 
+        private int iterations;
+
         public EM(double[] data, int numClusters)
         {
             this.x = data;
@@ -28,15 +30,19 @@ namespace a3
             this.tau = 1d / this.k; // fixed
             this.sigma = 1; // fixed
             this.e_steps = new List<double[,]>();
+            this.iterations = 0;
 
             this.Initialize();
         }
 
         public void Run()
         {
-            this.Initialize();
-            this.E();
-
+            while (Terminate() == false)
+            {
+                this.E();
+                this.M();
+                iterations++;
+            }
         }
 
         #region E Step
@@ -156,6 +162,38 @@ namespace a3
             }
 
             this.means.Add(initialMeans);
+        }
+
+
+        
+        /// <summary>
+        /// Decide whether to terminate the algorithm
+        /// </summary>
+        private bool Terminate()
+        {
+            if (this.means.Count <= 1)
+            {
+                return false;
+            }
+
+            if (this.iterations >= 100)
+            {
+                return false;
+            }
+
+            // Compare delta of last 2 iterations to see if change was less than epsilon
+            double epsilon = 0.001;
+            int lastIteration = this.means.Count - 1;
+            for (int j=0; j< this.k; j++)
+            {
+                double delta = this.means[lastIteration][j] - this.means[lastIteration - 1][j];
+                if (Math.Abs(delta) > epsilon)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
