@@ -8,11 +8,11 @@ namespace a3
 {
     public class EM
     {
-        public double[] x { get; private set; }
+        public double[] X { get; private set; }
 
-        public int k { get; private set; }
+        public int K { get; private set; }
 
-        public List<double[]> means { get; private set; }
+        public List<double[]> Means { get; private set; }
 
         public double tau { get; private set; }
 
@@ -24,10 +24,10 @@ namespace a3
 
         public EM(double[] data, int numClusters)
         {
-            this.x = data;
-            this.k = numClusters;
-            this.means = new List<double[]>();
-            this.tau = 1d / this.k; // fixed
+            this.X = data;
+            this.K = numClusters;
+            this.Means = new List<double[]>();
+            this.tau = 1d / this.K; // fixed
             this.sigma = 1; // fixed
             this.e_steps = new List<double[,]>();
             this.iterations = 0;
@@ -41,6 +41,7 @@ namespace a3
             {
                 this.E();
                 this.M();
+                this.BIC();
                 iterations++;
             }
         }
@@ -52,12 +53,12 @@ namespace a3
         /// </summary>
         public void E()
         {
-            double[,] e_step = new double[this.x.Length, this.k];
-            for (int i = 0; i < this.x.Length; i++)
+            double[,] e_step = new double[this.X.Length, this.K];
+            for (int i = 0; i < this.X.Length; i++)
             {
-                for (int j = 0; j < this.k; j++)
+                for (int j = 0; j < this.K; j++)
                 {
-                    e_step[i, j] = Expected_zij(this.x[i], j);
+                    e_step[i, j] = Expected_zij(this.X[i], j);
                 }
             }
 
@@ -69,13 +70,13 @@ namespace a3
         /// </summary>
         public double Expected_zij(double xi, int j)
         {
-            double numerator = Likelihood(xi, this.means.Last()[j], this.sigma) * this.tau;
+            double numerator = Likelihood(xi, this.Means.Last()[j], this.sigma) * this.tau;
 
             List<double> denominators = new List<double>(); // for debugging
             double denominator = 0;
-            for (int k = 0; k < this.k; k++)
+            for (int k = 0; k < this.K; k++)
             {
-                double likelihood = Likelihood(xi, this.means.Last()[k], this.sigma);
+                double likelihood = Likelihood(xi, this.Means.Last()[k], this.sigma);
                 denominators.Add(likelihood * this.tau);
                 denominator += likelihood * this.tau;
             }
@@ -104,14 +105,14 @@ namespace a3
         /// </summary>
         public void M()
         {
-            double[] updatedMeans = new double[this.k];
+            double[] updatedMeans = new double[this.K];
 
-            for (int j=0; j<this.k; j++)
+            for (int j = 0; j < this.K; j++)
             {
                 updatedMeans[j] = Mu_j(j);
             }
 
-            this.means.Add(updatedMeans);
+            this.Means.Add(updatedMeans);
         }
 
         /// <summary>
@@ -121,9 +122,9 @@ namespace a3
         {
             double numerator = 0;
             double denominator = 0;
-            for (int i = 0; i < this.x.Length; i++)
+            for (int i = 0; i < this.X.Length; i++)
             {
-                numerator += this.e_steps.Last()[i, j] * this.x[i];
+                numerator += this.e_steps.Last()[i, j] * this.X[i];
                 denominator += this.e_steps.Last()[i, j];
 
             }
@@ -133,24 +134,54 @@ namespace a3
 
         #endregion
 
+        public void BIC()
+        {
+            double L = OverallLikelihood();
+            // BIC = 2 * ln L(x | θ-hat) - r ln n
+
+        }
+
+        /// <summary>
+        /// The overall likelihood is the product of all the P(D) terms
+        /// </summary>
+        /// <returns></returns>
+        public double OverallLikelihood()
+        {
+            double overallLikelihood = 1;
+            double PD;
+            for (int i = 0; i < this.X.Length; i++)
+            {
+                PD = 0;
+                for (int j = 0; j < this.K; j++)
+                {
+                    double likelihood = Likelihood(this.X[i], this.Means.Last()[j], this.sigma);
+                    PD += likelihood * this.tau;
+                }
+
+                overallLikelihood *= PD;
+            }
+
+            return overallLikelihood;
+        }
+
         /// <summary>
         /// Initialization step to start EM
         /// </summary>
         private void Initialize()
         {
             // Initialize estimates for means
-            double[] initialMeans = new double[this.k];
+            double[] initialMeans = new double[this.K];
 
 
             // Method: sort the data set then break up into k equal groups and take mean of each group
             // For simplicity, if k is not a factor of groupSize, ignore the remaining 1 item
-            List<double> data = this.x.ToList();
+            List<double> data = this.X.ToList();
             data.Sort();
 
-            int maxGroupSize = (int)Math.Ceiling((double)this.x.Length / k);
-            int minGroupSize = this.x.Length / k;
+            int maxGroupSize = (int)Math.Ceiling((double)this.X.Length / K);
+            int minGroupSize = this.X.Length / K;
 
-            for (int i = 0; i < this.k; i++)
+            for (int i = 0; i < this.K; i++)
             {
                 double sum = 0;
                 for (int j = 0; j < minGroupSize; j++)
@@ -161,17 +192,15 @@ namespace a3
                 initialMeans[i] = sum / minGroupSize;
             }
 
-            this.means.Add(initialMeans);
+            this.Means.Add(initialMeans);
         }
 
-
-        
         /// <summary>
         /// Decide whether to terminate the algorithm
         /// </summary>
         private bool Terminate()
         {
-            if (this.means.Count <= 1)
+            if (this.Means.Count <= 1)
             {
                 return false;
             }
@@ -183,10 +212,10 @@ namespace a3
 
             // Compare delta of last 2 iterations to see if change was less than epsilon
             double epsilon = 0.001;
-            int lastIteration = this.means.Count - 1;
-            for (int j=0; j< this.k; j++)
+            int lastIteration = this.Means.Count - 1;
+            for (int j = 0; j < this.K; j++)
             {
-                double delta = this.means[lastIteration][j] - this.means[lastIteration - 1][j];
+                double delta = this.Means[lastIteration][j] - this.Means[lastIteration - 1][j];
                 if (Math.Abs(delta) > epsilon)
                 {
                     return false;
