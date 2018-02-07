@@ -23,5 +23,12 @@ namespace a3_tests
             Assert.AreEqual(0.5, expected, "0 falls in the middle and should be 0.5");
             Console.WriteLine(expected);
         }
+
+        [TestMethod]
+        public void TestEStep()
+        {
+            EM em = new EM(new double[5] { -2, -1, 0, 1, 2 }, 3);
+            em.E();
+        }
     }
 }

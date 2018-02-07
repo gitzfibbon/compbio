@@ -18,6 +18,8 @@ namespace a3
 
         public double sigma { get; private set; }
 
+        public List<double[,]> e_steps { get; private set; }
+
         public EM(double[] data, int numClusters)
         {
             this.x = data;
@@ -25,6 +27,7 @@ namespace a3
             this.means = new List<double[]>();
             this.tau = 1d / this.k; // fixed
             this.sigma = 1; // fixed
+            this.e_steps = new List<double[,]>();
 
             this.Initialize();
         }
@@ -32,12 +35,25 @@ namespace a3
         public void Run()
         {
             this.Initialize();
+            this.E();
 
         }
 
-        private void E()
+        /// <summary>
+        /// E step: calculate the expected zij for every i and j
+        /// </summary>
+        public void E()
         {
+            double[,] e_step = new double[this.x.Length, this.k];
+            for (int i = 0; i < this.x.Length; i++)
+            {
+                for (int j=0; j< this.k; j++)
+                {
+                    e_step[i, j] = Expected_zij(this.x[i], j);
+                }
+            }
 
+            this.e_steps.Add(e_step);
         }
 
         private void M()
