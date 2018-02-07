@@ -134,11 +134,13 @@ namespace a3
 
         #endregion
 
-        public void BIC()
+        public double BIC()
         {
-            double L = OverallLikelihood();
             // BIC = 2 * ln L(x | θ-hat) - r ln n
 
+            double L = OverallLikelihood();
+            double bic = 2 * Math.Log(L) - this.K * Math.Log(this.X.Length);
+            return bic;
         }
 
         /// <summary>
