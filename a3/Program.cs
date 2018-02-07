@@ -15,11 +15,20 @@ namespace a3
 
             EM em = new EM(data, 3);
             em.Run();
+
+            PrintEM(em);
         }
 
         private static void PrintEM(EM em)
         {
+            StringBuilder sb = new StringBuilder();
 
+            for (int j = 0; j< em.K; j++)
+            {
+                sb.Append(("mu" + j+1).PadLeft(10));
+            }
+
+            Console.WriteLine(sb.ToString());
         }
 
         private static double[] ReadData(string inputFile)
