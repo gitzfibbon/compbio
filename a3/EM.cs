@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace a3
 {
-    class EM
+    public class EM
     {
         public double[] x { get; private set; }
 
@@ -23,9 +23,10 @@ namespace a3
             this.x = data;
             this.k = numClusters;
             this.means = new List<double[]>();
-            this.tau = 1 / this.k; // fixed
+            this.tau = 1d / this.k; // fixed
             this.sigma = 1; // fixed
 
+            this.Initialize();
         }
 
         public void Run()
@@ -44,7 +45,23 @@ namespace a3
 
         }
 
-        private double Likelihood(double xi, double mu, double sigma)
+        public double Expected_zij(double xi, int j)
+        {
+            double numerator = Likelihood(xi, this.means.Last()[j], this.sigma) * this.tau;
+
+            List<double> denominators = new List<double>(); // for debugging
+            double denominator = 0;
+            for (int k = 0; k < this.k; k++)
+            {
+                double likelihood = Likelihood(xi, this.means.Last()[k], this.sigma);
+                denominators.Add(likelihood * this.tau);
+                denominator += likelihood * this.tau;
+            }
+
+            return numerator / denominator;
+        }
+
+        public double Likelihood(double xi, double mu, double sigma)
         {
             double sigma_squared = Math.Pow(sigma, 2);
             double e_power = -1 * Math.Pow(xi - mu, 2) / (2 * sigma_squared);
@@ -67,7 +84,7 @@ namespace a3
             List<double> data = this.x.ToList();
             data.Sort();
 
-            int maxGroupSize =  (int)Math.Ceiling((double)this.x.Length / k);
+            int maxGroupSize = (int)Math.Ceiling((double)this.x.Length / k);
             int minGroupSize = this.x.Length / k;
 
             for (int i = 0; i < this.k; i++)
