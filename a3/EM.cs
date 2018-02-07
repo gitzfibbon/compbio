@@ -14,11 +14,15 @@ namespace a3
 
         public List<double[]> Means { get; private set; }
 
-        public double tau { get; private set; }
+        public double Tau { get; private set; }
 
-        public double sigma { get; private set; }
+        public double Sigma { get; private set; }
 
-        public List<double[,]> e_steps { get; private set; }
+        public List<double[,]> E_Steps { get; private set; }
+
+        public List<double> LogLikelihoods { get; private set; }
+
+        public List<double> BICs { get; private set; }
 
         private int iterations;
 
@@ -27,9 +31,11 @@ namespace a3
             this.X = data;
             this.K = numClusters;
             this.Means = new List<double[]>();
-            this.tau = 1d / this.K; // fixed
-            this.sigma = 1; // fixed
-            this.e_steps = new List<double[,]>();
+            this.Tau = 1d / this.K; // fixed
+            this.Sigma = 1; // fixed
+            this.E_Steps = new List<double[,]>();
+            this.LogLikelihoods = new List<double>();
+            this.BICs = new List<double>();
             this.iterations = 0;
 
             this.Initialize();
@@ -41,8 +47,6 @@ namespace a3
             {
                 this.E();
                 this.M();
-                this.LogLikelihood();
-                this.BIC();
                 iterations++;
             }
         }
@@ -63,7 +67,7 @@ namespace a3
                 }
             }
 
-            this.e_steps.Add(e_step);
+            this.E_Steps.Add(e_step);
         }
 
         /// <summary>
@@ -71,15 +75,15 @@ namespace a3
         /// </summary>
         public double Expected_zij(double xi, int j)
         {
-            double numerator = Likelihood(xi, this.Means.Last()[j], this.sigma) * this.tau;
+            double numerator = Likelihood(xi, this.Means.Last()[j], this.Sigma) * this.Tau;
 
             List<double> denominators = new List<double>(); // for debugging
             double denominator = 0;
             for (int k = 0; k < this.K; k++)
             {
-                double likelihood = Likelihood(xi, this.Means.Last()[k], this.sigma);
-                denominators.Add(likelihood * this.tau);
-                denominator += likelihood * this.tau;
+                double likelihood = Likelihood(xi, this.Means.Last()[k], this.Sigma);
+                denominators.Add(likelihood * this.Tau);
+                denominator += likelihood * this.Tau;
             }
 
             return numerator / denominator;
@@ -114,6 +118,9 @@ namespace a3
             }
 
             this.Means.Add(updatedMeans);
+
+            this.LogLikelihoods.Add(this.LogLikelihood());
+            this.BICs.Add(this.BIC());
         }
 
         /// <summary>
@@ -125,15 +132,13 @@ namespace a3
             double denominator = 0;
             for (int i = 0; i < this.X.Length; i++)
             {
-                numerator += this.e_steps.Last()[i, j] * this.X[i];
-                denominator += this.e_steps.Last()[i, j];
+                numerator += this.E_Steps.Last()[i, j] * this.X[i];
+                denominator += this.E_Steps.Last()[i, j];
 
             }
 
             return numerator / denominator;
         }
-
-        #endregion
 
         public double BIC()
         {
@@ -157,8 +162,8 @@ namespace a3
                 PD = 0;
                 for (int j = 0; j < this.K; j++)
                 {
-                    double likelihood = Likelihood(this.X[i], this.Means.Last()[j], this.sigma);
-                    PD += likelihood * this.tau;
+                    double likelihood = Likelihood(this.X[i], this.Means.Last()[j], this.Sigma);
+                    PD += likelihood * this.Tau;
                 }
 
                 overallLikelihood *= PD;
@@ -180,8 +185,8 @@ namespace a3
                 PD = 0;
                 for (int j = 0; j < this.K; j++)
                 {
-                    double likelihood = Likelihood(this.X[i], this.Means.Last()[j], this.sigma);
-                    PD += likelihood * this.tau;
+                    double likelihood = Likelihood(this.X[i], this.Means.Last()[j], this.Sigma);
+                    PD += likelihood * this.Tau;
                 }
 
                 logLikelihood += Math.Log(PD);
@@ -189,6 +194,8 @@ namespace a3
 
             return logLikelihood;
         }
+
+        #endregion
 
         /// <summary>
         /// Initialization step to start EM

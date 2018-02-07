@@ -17,6 +17,11 @@ namespace a3
             em.Run();
         }
 
+        private static void PrintEM(EM em)
+        {
+
+        }
+
         private static double[] ReadData(string inputFile)
         {
             List<double> data = new List<double>();
