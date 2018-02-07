@@ -39,6 +39,8 @@ namespace a3
 
         }
 
+        #region E Step
+
         /// <summary>
         /// E step: calculate the expected zij for every i and j
         /// </summary>
@@ -47,7 +49,7 @@ namespace a3
             double[,] e_step = new double[this.x.Length, this.k];
             for (int i = 0; i < this.x.Length; i++)
             {
-                for (int j=0; j< this.k; j++)
+                for (int j = 0; j < this.k; j++)
                 {
                     e_step[i, j] = Expected_zij(this.x[i], j);
                 }
@@ -56,11 +58,9 @@ namespace a3
             this.e_steps.Add(e_step);
         }
 
-        private void M()
-        {
-
-        }
-
+        /// <summary>
+        /// Helper for the E step. Calculates the Expected zij for a particular xi and j.
+        /// </summary>
         public double Expected_zij(double xi, int j)
         {
             double numerator = Likelihood(xi, this.means.Last()[j], this.sigma) * this.tau;
@@ -77,6 +77,9 @@ namespace a3
             return numerator / denominator;
         }
 
+        /// <summary>
+        /// Likelihood that a number came from a normal distribution
+        /// </summary>
         public double Likelihood(double xi, double mu, double sigma)
         {
             double sigma_squared = Math.Pow(sigma, 2);
@@ -85,6 +88,44 @@ namespace a3
 
             return likelihood;
         }
+
+        #endregion
+
+        #region M Step
+
+        /// <summary>
+        /// M step: update theta (just mu in this case)
+        /// </summary>
+        public void M()
+        {
+            double[] updatedMeans = new double[this.k];
+
+            for (int j=0; j<this.k; j++)
+            {
+                updatedMeans[j] = Mu_j(j);
+            }
+
+            this.means.Add(updatedMeans);
+        }
+
+        /// <summary>
+        /// Helper for the M step. Updates mu (theta) at j.
+        /// </summary>
+        public double Mu_j(int j)
+        {
+            double numerator = 0;
+            double denominator = 0;
+            for (int i = 0; i < this.x.Length; i++)
+            {
+                numerator += this.e_steps.Last()[i, j] * this.x[i];
+                denominator += this.e_steps.Last()[i, j];
+
+            }
+
+            return numerator / denominator;
+        }
+
+        #endregion
 
         /// <summary>
         /// Initialization step to start EM

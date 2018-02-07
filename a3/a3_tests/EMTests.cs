@@ -30,5 +30,15 @@ namespace a3_tests
             EM em = new EM(new double[5] { -2, -1, 0, 1, 2 }, 3);
             em.E();
         }
+
+        [TestMethod]
+        public void TestMStep()
+        {
+            EM em = new EM(new double[5] { -2, -1, 0, 1, 2 }, 2);
+            em.E();
+            em.M();
+            em.E();
+            em.M();
+        }
     }
 }
