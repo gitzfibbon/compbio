@@ -41,6 +41,7 @@ namespace a3
             {
                 this.E();
                 this.M();
+                this.LogLikelihood();
                 this.BIC();
                 iterations++;
             }
@@ -164,6 +165,29 @@ namespace a3
             }
 
             return overallLikelihood;
+        }
+
+        /// <summary>
+        /// The log likelihood is the sum of the Log of the P(D) terms
+        /// </summary>
+        /// <returns></returns>
+        public double LogLikelihood()
+        {
+            double logLikelihood = 0;
+            double PD;
+            for (int i = 0; i < this.X.Length; i++)
+            {
+                PD = 0;
+                for (int j = 0; j < this.K; j++)
+                {
+                    double likelihood = Likelihood(this.X[i], this.Means.Last()[j], this.sigma);
+                    PD += likelihood * this.tau;
+                }
+
+                logLikelihood += Math.Log(PD);
+            }
+
+            return logLikelihood;
         }
 
         /// <summary>
