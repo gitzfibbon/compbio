@@ -10,6 +10,7 @@ namespace a3
     class Program
     {
         /// <summary>
+        /// Computational Biology Assignment 3 - Jordan Fitzgibbon
         /// To run from command line pass in the input file and a random seed for initialization.
         /// Eg. a3.exe input.txt 12345
         /// </summary>
