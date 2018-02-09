@@ -43,8 +43,6 @@ namespace a3
             this.TerminationDelta = 0.01;
             this.MaxIterations = 15;
             this.iterations = 0;
-
-            this.Initialize();
         }
 
         public void Run()
@@ -205,7 +203,7 @@ namespace a3
         /// <summary>
         /// Initialization step to start EM
         /// </summary>
-        private void Initialize()
+        public void Initialize()
         {
             // Initialize estimates for means
             double[] initialMeans = new double[this.K];
@@ -230,6 +228,19 @@ namespace a3
                 initialMeans[i] = sum / minGroupSize;
             }
 
+            this.Means.Add(initialMeans);
+
+            // Calculate LL and BIC for completeness
+            this.LogLikelihoods.Add(this.LogLikelihood());
+            this.BICs.Add(this.BIC());
+        }
+
+        /// <summary>
+        /// Initialization step to start EM
+        /// </summary>
+        public void Initialize(double[] initialMeans)
+        {
+            this.Means = new List<double[]>();
             this.Means.Add(initialMeans);
 
             // Calculate LL and BIC for completeness

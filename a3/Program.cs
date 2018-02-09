@@ -11,8 +11,8 @@ namespace a3
     {
         static void Main(string[] args)
         {
-            //Test1();
-            Test2();
+            Test1();
+            //Test2();
 
             Console.WriteLine("Press any key...");
             Console.ReadKey();
@@ -21,7 +21,8 @@ namespace a3
         private static void Test1()
         {
             double[] data = ReadData(@"data\input1.txt");
-            EM em = new EM(data, 5);
+            EM em = new EM(data, 3);
+            em.Initialize(new double[3] { 21, 46, 55 });
             em.Run();
             PrintEM(em);
         }
@@ -30,8 +31,7 @@ namespace a3
         {
             double[] data = ReadData(@"data\input2.txt");
             EM em = new EM(data, 5);
-            em.Means.RemoveAt(0);
-            em.Means.Add(new double[5] { 35, 12, 46, 22, 45 });
+            em.Initialize(new double[5] { 35, 12, 46, 22, 45 });
             em.Run();
             PrintEM(em);
         }
@@ -75,11 +75,11 @@ namespace a3
 
             for (int i = 0; i < em.X.Length; i++)
             {
-                sb.Append(("[" + (i+1) + "]").PadLeft(6));
+                sb.Append(("[" + (i + 1) + "]").PadLeft(6));
                 sb.Append(em.X[i].ToString().PadLeft(padSize - 6));
                 for (int j = 0; j < em.K; j++)
                 {
-                    sb.Append(em.E_Steps.Last()[i,j].ToString("e6").PadLeft(padSize));
+                    sb.Append(em.E_Steps.Last()[i, j].ToString("e6").PadLeft(padSize));
                 }
                 sb.AppendLine();
             }
