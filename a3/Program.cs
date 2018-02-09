@@ -11,18 +11,99 @@ namespace a3
     {
         static void Main(string[] args)
         {
-            Test1();
+            BestBIC();
+            //Test1_5d();
             //Test2();
 
             Console.WriteLine("Press any key...");
             Console.ReadKey();
         }
 
-        private static void Test1()
+        private static void BestBIC()
+        {
+            double[] data = ReadData(@"data\input2.txt");
+
+            List<EM> results = new List<EM>();
+
+            int maxK = 5;
+            int highestBICIndex = 0;
+            for (int k = 0; k < maxK; k++)
+            {
+                EM em = new EM(data, k + 1);
+                em.Initialize(2);
+                em.Run();
+                results.Add(em);
+
+                // Keep track of max BIC
+                if (em.BICs.Last() > results[highestBICIndex].BICs.Last())
+                {
+                    highestBICIndex = k;
+                }
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("k".PadLeft(6));
+            sb.Append("BIC".PadLeft(14));
+            sb.AppendLine();
+            for (int i = 0; i < maxK; i++)
+            {
+                sb.Append((i + 1).ToString().PadLeft(6));
+                sb.Append(results[i].BICs.Last().ToString("F6").PadLeft(14));
+
+                if (i == highestBICIndex)
+                {
+                    sb.Append("  <--- Highest BIC");
+                }
+
+                sb.AppendLine();
+            }
+
+            Console.WriteLine(sb.ToString());
+
+            PrintEM(results[highestBICIndex]);
+        }
+
+        private static void Test1_3()
         {
             double[] data = ReadData(@"data\input1.txt");
             EM em = new EM(data, 3);
             em.Initialize(new double[3] { 21, 46, 55 });
+            em.Run();
+            PrintEM(em);
+        }
+
+        private static void Test1_5a()
+        {
+            double[] data = ReadData(@"data\input1.txt");
+            EM em = new EM(data, 5);
+            em.Initialize(new double[5] { 35, 12, 46, 22, 45 });
+            em.Run();
+            PrintEM(em);
+        }
+
+        private static void Test1_5b()
+        {
+            double[] data = ReadData(@"data\input1.txt");
+            EM em = new EM(data, 5);
+            em.Initialize(new double[5] { 9, 10, 46, 49, 57 });
+            em.Run();
+            PrintEM(em);
+        }
+
+        private static void Test1_5c()
+        {
+            double[] data = ReadData(@"data\input1.txt");
+            EM em = new EM(data, 5);
+            em.Initialize();
+            em.Run();
+            PrintEM(em);
+        }
+
+        private static void Test1_5d()
+        {
+            double[] data = ReadData(@"data\input1.txt");
+            EM em = new EM(data, 5);
+            em.Initialize(2);
             em.Run();
             PrintEM(em);
         }
@@ -36,10 +117,10 @@ namespace a3
             PrintEM(em);
         }
 
-        private static void PrintEM(EM em)
+        private static string PrintEM(EM em)
         {
             int padSize = 15;
-            string formatTop = "F6";
+            string numberFormat = "F6";
             StringBuilder sb = new StringBuilder();
 
             // Print Mean, LL, BIC
@@ -57,10 +138,10 @@ namespace a3
             {
                 for (int j = 0; j < em.K; j++)
                 {
-                    sb.Append(em.Means[i][j].ToString(formatTop).PadLeft(padSize));
+                    sb.Append(em.Means[i][j].ToString(numberFormat).PadLeft(padSize));
                 }
-                sb.Append(em.LogLikelihoods[i].ToString(formatTop).PadLeft(padSize));
-                sb.Append(em.BICs[i].ToString(formatTop).PadLeft(padSize));
+                sb.Append(em.LogLikelihoods[i].ToString(numberFormat).PadLeft(padSize));
+                sb.Append(em.BICs[i].ToString(numberFormat).PadLeft(padSize));
                 sb.AppendLine();
             }
 
@@ -85,6 +166,7 @@ namespace a3
             }
 
             Console.WriteLine(sb.ToString());
+            return sb.ToString();
         }
 
         private static double[] ReadData(string inputFile)

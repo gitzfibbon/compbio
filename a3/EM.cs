@@ -201,7 +201,7 @@ namespace a3
         #endregion
 
         /// <summary>
-        /// Initialization step to start EM
+        /// Initialize by sorting in k groups and averaging each group
         /// </summary>
         public void Initialize()
         {
@@ -236,12 +236,44 @@ namespace a3
         }
 
         /// <summary>
-        /// Initialization step to start EM
+        /// Initialize with fixed values
         /// </summary>
         public void Initialize(double[] initialMeans)
         {
             this.Means = new List<double[]>();
             this.Means.Add(initialMeans);
+
+            // Calculate LL and BIC for completeness
+            this.LogLikelihoods.Add(this.LogLikelihood());
+            this.BICs.Add(this.BIC());
+        }
+
+        /// <summary>
+        /// Initialize with random values
+        /// </summary>
+        public void Initialize(int seed)
+        {
+            Random random = new Random(seed);
+
+            // Create a list that we will remove from
+            List<int> workingList = new List<int>();
+            for (int i = 0; i < this.X.Length; i++)
+            {
+                workingList.Add(i);
+            }
+
+            List<double> initialMeans = new List<double>();
+            for (int j = 0; j < this.K; j++)
+            {
+                int i = random.Next(workingList.Count);
+
+                // add to the initial list, remove from the old list
+                workingList.RemoveAt(i);
+                initialMeans.Add(this.X[i]);
+            }
+
+            this.Means = new List<double[]>();
+            this.Means.Add(initialMeans.ToArray());
 
             // Calculate LL and BIC for completeness
             this.LogLikelihoods.Add(this.LogLikelihood());
