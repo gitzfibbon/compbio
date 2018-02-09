@@ -9,19 +9,34 @@ namespace a3
 {
     class Program
     {
+        /// <summary>
+        /// To run from command line pass in the input file and a random seed for initialization.
+        /// Eg. a3.exe input.txt 12345
+        /// </summary>
         static void Main(string[] args)
         {
-            BestBIC();
-            //Test1_5d();
-            //Test2();
-
-            Console.WriteLine("Press any key...");
-            Console.ReadKey();
+            if (args.Length <= 0)
+            {
+                BestBIC(@"data\input2.txt", 2);
+                //Test1_5d();
+                //Test2();
+                Console.WriteLine("Press any key...");
+                Console.ReadKey();
+            }
+            else if (args.Length == 2)
+            {
+                BestBIC(args[0], Convert.ToInt32(args[1]));
+            }
+            else
+            {
+                Console.WriteLine("Provide input file as first argument and random seed as second argument");
+                Console.WriteLine("Example: a3.exe input.txt 12345");
+            }
         }
 
-        private static void BestBIC()
+        private static void BestBIC(string inputFile, int randomSeed)
         {
-            double[] data = ReadData(@"data\input2.txt");
+            double[] data = ReadData(inputFile);
 
             List<EM> results = new List<EM>();
 
@@ -30,7 +45,7 @@ namespace a3
             for (int k = 0; k < maxK; k++)
             {
                 EM em = new EM(data, k + 1);
-                em.Initialize(2);
+                em.Initialize(randomSeed);
                 em.Run();
                 results.Add(em);
 
@@ -57,10 +72,13 @@ namespace a3
 
                 sb.AppendLine();
             }
+            sb.AppendLine();
+
+            sb.Append(PrintEM(results[highestBICIndex], false));
 
             Console.WriteLine(sb.ToString());
 
-            PrintEM(results[highestBICIndex]);
+            File.WriteAllText("results.txt", sb.ToString());
         }
 
         private static void Test1_3()
@@ -102,7 +120,7 @@ namespace a3
         private static void Test1_5d()
         {
             double[] data = ReadData(@"data\input1.txt");
-            EM em = new EM(data, 5);
+            EM em = new EM(data, 3);
             em.Initialize(2);
             em.Run();
             PrintEM(em);
@@ -117,7 +135,7 @@ namespace a3
             PrintEM(em);
         }
 
-        private static string PrintEM(EM em)
+        private static string PrintEM(EM em, bool printToConsole = true)
         {
             int padSize = 15;
             string numberFormat = "F6";
@@ -165,7 +183,11 @@ namespace a3
                 sb.AppendLine();
             }
 
-            Console.WriteLine(sb.ToString());
+            if (printToConsole)
+            {
+                Console.WriteLine(sb.ToString());
+            }
+
             return sb.ToString();
         }
 

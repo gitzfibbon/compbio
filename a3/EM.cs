@@ -47,7 +47,7 @@ namespace a3
 
         public void Run()
         {
-            while (Terminate() == false)
+            while (Terminate2() == false)
             {
                 this.E();
                 this.M();
@@ -281,9 +281,9 @@ namespace a3
         }
 
         /// <summary>
-        /// Decide whether to terminate the algorithm
+        /// Decide whether to terminate the algorithm when means don't change by a small amount
         /// </summary>
-        private bool Terminate()
+        private bool Terminate1()
         {
             if (this.Means.Count <= 1)
             {
@@ -305,6 +305,35 @@ namespace a3
                     return false;
                 }
             }
+
+            return true;
+        }
+
+        /// <summary>
+        /// BIC doesn't change by a small amount
+        /// </summary>
+        /// <returns></returns>
+        private bool Terminate2()
+        {
+            if (this.Means.Count <= 1)
+            {
+                return false;
+            }
+
+            if (this.iterations >= this.MaxIterations)
+            {
+                return true;
+            }
+
+            // Compare delta of last 2 iterations to see if change was less than the termination threshold
+            int lastIteration = this.Means.Count - 1;
+
+            double delta = this.BICs.Last() - this.BICs[this.BICs.Count - 2];
+            if (Math.Abs(delta) > this.TerminationDelta)
+            {
+                return false;
+            }
+
 
             return true;
         }
