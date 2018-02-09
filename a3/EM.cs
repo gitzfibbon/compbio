@@ -24,6 +24,10 @@ namespace a3
 
         public List<double> BICs { get; private set; }
 
+        public double TerminationDelta { get; set; }
+
+        public int MaxIterations { get; set; }
+
         private int iterations;
 
         public EM(double[] data, int numClusters)
@@ -36,6 +40,8 @@ namespace a3
             this.E_Steps = new List<double[,]>();
             this.LogLikelihoods = new List<double>();
             this.BICs = new List<double>();
+            this.TerminationDelta = 0.01;
+            this.MaxIterations = 15;
             this.iterations = 0;
 
             this.Initialize();
@@ -118,7 +124,6 @@ namespace a3
             }
 
             this.Means.Add(updatedMeans);
-
             this.LogLikelihoods.Add(this.LogLikelihood());
             this.BICs.Add(this.BIC());
         }
@@ -211,7 +216,7 @@ namespace a3
             List<double> data = this.X.ToList();
             data.Sort();
 
-            int maxGroupSize = (int)Math.Ceiling((double)this.X.Length / K);
+            //int maxGroupSize = (int)Math.Ceiling((double)this.X.Length / K);
             int minGroupSize = this.X.Length / K;
 
             for (int i = 0; i < this.K; i++)
@@ -220,12 +225,16 @@ namespace a3
                 for (int j = 0; j < minGroupSize; j++)
                 {
 
-                    sum += data[j + (i * maxGroupSize)];
+                    sum += data[j + (i * minGroupSize)];
                 }
                 initialMeans[i] = sum / minGroupSize;
             }
 
             this.Means.Add(initialMeans);
+
+            // Calculate LL and BIC for completeness
+            this.LogLikelihoods.Add(this.LogLikelihood());
+            this.BICs.Add(this.BIC());
         }
 
         /// <summary>
@@ -238,18 +247,17 @@ namespace a3
                 return false;
             }
 
-            if (this.iterations >= 100)
+            if (this.iterations >= this.MaxIterations)
             {
-                return false;
+                return true;
             }
 
-            // Compare delta of last 2 iterations to see if change was less than epsilon
-            double epsilon = 0.001;
+            // Compare delta of last 2 iterations to see if change was less than the termination threshold
             int lastIteration = this.Means.Count - 1;
             for (int j = 0; j < this.K; j++)
             {
                 double delta = this.Means[lastIteration][j] - this.Means[lastIteration - 1][j];
-                if (Math.Abs(delta) > epsilon)
+                if (Math.Abs(delta) > this.TerminationDelta)
                 {
                     return false;
                 }
