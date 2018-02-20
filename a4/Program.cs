@@ -12,6 +12,7 @@ namespace a4
         static void Main(string[] args)
         {
             string genome = ReadGenome(@"data\GCF_000091665.1_ASM9166v1_genomic.fna");
+            Viterbi viterbi = new Viterbi(genome);
         }
 
         private static string ReadGenome(string filePath)
