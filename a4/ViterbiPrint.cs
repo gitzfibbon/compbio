@@ -21,8 +21,34 @@ namespace a4
             sb.AppendLine();
             sb.Append(PrintLogProbability());
             sb.AppendLine();
+            sb.Append(PrintHits());
+            sb.AppendLine();
 
-            File.WriteAllText("tracebackpath.txt", PrintTraceback());
+            //File.WriteAllText("tracebackpath.txt", PrintTraceback());
+
+            return sb.ToString();
+        }
+
+        public string PrintHits()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine("Hits");
+            int colPad = 10;
+            sb.Append("Start".PadLeft(colPad));
+            sb.Append("End".PadLeft(colPad));
+            sb.Append("Length".PadLeft(colPad));
+            sb.AppendLine();
+
+            foreach (Tuple<int, int, int> hit in Hits)
+            {
+                // Print using 1-based index
+                sb.Append((hit.Item1 + 1).ToString().PadLeft(colPad));
+                sb.Append((hit.Item2 + 1).ToString().PadLeft(colPad));
+
+                sb.Append(hit.Item3.ToString().PadLeft(colPad));
+                sb.AppendLine();
+            }
 
             return sb.ToString();
         }
@@ -31,7 +57,7 @@ namespace a4
         {
             StringBuilder sb = new StringBuilder();
 
-            for (int i=0; i<Observations.Length; i++)
+            for (int i = 0; i < Observations.Length; i++)
             {
                 sb.Append(TracebackPath[i]);
             }

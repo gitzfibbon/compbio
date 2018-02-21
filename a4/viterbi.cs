@@ -140,8 +140,8 @@ namespace a4
 
                     currentState = tracebackPath[i];
                 }
-                int hitEnd = i;
-                int hitLength = hitEnd - hitStart;
+                int hitEnd = i - 1;
+                int hitLength = i - hitStart;
 
                 if (hitLength >= minLength)
                 {
