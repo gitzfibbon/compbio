@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +22,21 @@ namespace a4
             sb.Append(PrintLogProbability());
             sb.AppendLine();
 
+            File.WriteAllText("tracebackpath.txt", PrintTraceback());
+
+            return sb.ToString();
+        }
+
+        public string PrintTraceback()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (int i=0; i<Observations.Length; i++)
+            {
+                sb.Append(TracebackPath[i]);
+            }
+            sb.AppendLine();
+
             return sb.ToString();
         }
 
@@ -29,7 +45,7 @@ namespace a4
             StringBuilder sb = new StringBuilder();
             int iteration = 1;
             sb.Append("Log Probability for iteration " + iteration.ToString().PadLeft(2) + ": ");
-            sb.Append(Math.Max(V[State1, Observations.Length - 1], V[State2, Observations.Length - 1]).ToString("F10"));
+            sb.Append(LogProbability.ToString("F10"));
             sb.AppendLine();
 
             return sb.ToString();

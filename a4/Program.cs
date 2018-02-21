@@ -14,6 +14,7 @@ namespace a4
             string genome = ReadGenome(@"data\GCF_000091665.1_ASM9166v1_genomic.fna");
             Viterbi viterbi = new Viterbi(genome);
             viterbi.Train();
+            viterbi.Traceback();
 
             string text = viterbi.Print();
             Console.WriteLine(text);
