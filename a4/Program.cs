@@ -20,11 +20,11 @@ namespace a4
             string genome = ReadGenome(@"data\GCF_000091665.1_ASM9166v1_genomic.fna");
 
             ViterbiTraining vt = new ViterbiTraining(genome);
-            vt.Run(1);
+            vt.Run(10);
 
-            //string text = viterbi.Print();
-            //Console.WriteLine(text);
-            //File.WriteAllText("results.txt", text);
+            string text = vt.Print();
+            Console.WriteLine(text);
+            File.WriteAllText("viterbitraining_results.txt", text);
 
             Console.WriteLine("Press any key...");
             Console.ReadKey();

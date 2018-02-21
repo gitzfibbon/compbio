@@ -38,32 +38,56 @@ namespace a4
                 return;
             }
 
-            this.Iterations = new List<Viterbi>();
-
+            // Do an initial run
             Viterbi viterbi = new Viterbi(this.Observations);
-            viterbi.Train();
-            viterbi.Traceback();
+            viterbi.Run();
+
+            this.Iterations = new List<Viterbi>();
+            this.Iterations.Add(viterbi);
+
+            for (int i = 1; i < numIterations; i++)
+            {
+                // Set up the new iteration
+                viterbi = new Viterbi(this.Observations);
+
+                // Overwrite the default emissions and transitions
+                viterbi.Transitions = Iterations.Last().RetrainedTransitions;
+                viterbi.Emissions = Iterations.Last().RetrainedEmissions;
+
+                viterbi.Run();
+                this.Iterations.Add(viterbi);
+            }
 
         }
 
-        /// <summary>
-        /// Updates emission and transition probabilities based on previous iteration
-        /// then runs a new iteration
-        /// </summary>
-        /// <param name="previousViterbi"></param>
-        /// <returns></returns>
-        private Viterbi RunOnce(Viterbi previousViterbi)
+        public string Print()
         {
-            // Use previous viterbi results to update new emission/transition probs
-            if (previousViterbi != null)
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < Iterations.Count; i++)
             {
+                sb.AppendLine();
+                sb.AppendLine("----------------------------------------");
+                sb.AppendLine("Iteration " + (i + 1).ToString());
+                sb.AppendLine("----------------------------------------");
+                sb.AppendLine();
+
+                if (i < Iterations.Count - 1)
+                {
+                    sb.AppendLine(Iterations[i].Print(5));
+                }
+                else
+                {
+                    sb.AppendLine(Iterations[i].Print());
+                }
+
 
             }
 
 
-
-            return null;
+            return sb.ToString();
         }
+
 
     }
 }

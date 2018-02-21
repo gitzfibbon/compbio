@@ -24,7 +24,17 @@ namespace a4
 
         public double[,] Transitions { get; set; }
 
+        /// <summary>
+        /// Adjusted after training
+        /// </summary>
+        public double[,] RetrainedTransitions { get; set; }
+
         public double[,] Emissions { get; set; }
+
+        /// <summary>
+        /// Adjusted after training
+        /// </summary>
+        public double[,] RetrainedEmissions { get; set; }
 
         /// <summary>
         /// From slide 29, probability of the most probable path at each observation
@@ -105,6 +115,60 @@ namespace a4
         {
             this.Train();
             this.Traceback();
+            this.Retrain();
+        }
+
+        /// <summary>
+        /// Retrain the initial transition and emission probabilities
+        /// </summary>
+        public void Retrain()
+        {
+
+            // Update the transitions
+
+            double state1Count = 0;
+            double state2Count = 0;
+            double state1To2 = 0;
+            double state2To1 = 0;
+            double[,] obsCount = new double[2, 4]; // How many times ACGT were occurred in each state
+            for (int i=0; i<this.TracebackPath.Length; i++)
+            {
+                if (TracebackPath[i] == State1)
+                {
+                    // Increment counter for this observation in State1
+                    obsCount[State1, NucMap[Observations[i]]]++;
+
+                    state1Count++;
+                    if (i + 1 < TracebackPath.Length && TracebackPath[i+1] == State2)
+                    {
+                        state1To2++;
+                    }
+                }
+                else
+                {
+                    // Increment counter for this observation in State1
+                    obsCount[State2, NucMap[Observations[i]]]++;
+
+                    state2Count++;
+                    if (i + 1 < TracebackPath.Length && TracebackPath[i + 1] == State1)
+                    {
+                        state2To1++;
+                    }
+                }
+            }
+
+            this.RetrainedTransitions = new double[2, 2];
+            this.RetrainedTransitions[State1, State2] = state1To2 / state1Count;
+            this.RetrainedTransitions[State1, State1] = 1 - this.RetrainedTransitions[State1, State2];
+            this.RetrainedTransitions[State2, State1] = state2To1 / state2Count;
+            this.RetrainedTransitions[State2, State2] = 1 - this.RetrainedTransitions[State2, State1];
+
+            this.RetrainedEmissions = new double[2, 4];
+            for (int i=0; i<4; i++)
+            {
+                this.RetrainedEmissions[State1, i] = obsCount[State1, i] / state1Count;
+                this.RetrainedEmissions[State2, i] = obsCount[State2, i] / state2Count;
+            }
         }
 
         /// <summary>
