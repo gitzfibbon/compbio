@@ -18,7 +18,19 @@ namespace a4
             sb.AppendLine();
             sb.Append(PrintTransitions());
             sb.AppendLine();
+            sb.Append(PrintLogProbability());
+            sb.AppendLine();
 
+            return sb.ToString();
+        }
+
+        public string PrintLogProbability()
+        {
+            StringBuilder sb = new StringBuilder();
+            int iteration = 1;
+            sb.Append("Log Probability for iteration " + iteration.ToString().PadLeft(2) + ": ");
+            sb.Append(Math.Max(V[State1, Observations.Length - 1], V[State2, Observations.Length - 1]).ToString("F10"));
+            sb.AppendLine();
 
             return sb.ToString();
         }
