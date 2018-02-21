@@ -11,19 +11,39 @@ namespace a4
     {
         static void Main(string[] args)
         {
-            string genome = ReadGenome(@"data\GCF_000091665.1_ASM9166v1_genomic.fna");
-            Viterbi viterbi = new Viterbi(genome);
-            viterbi.Train();
-            viterbi.Traceback();
+            RunViterbiTraining();
+            //RunViterbi();
+        }
 
-            string text = viterbi.Print();
-            Console.WriteLine(text);
-            File.WriteAllText("results.txt", text);
+        private static void RunViterbiTraining()
+        {
+            string genome = ReadGenome(@"data\GCF_000091665.1_ASM9166v1_genomic.fna");
+
+            ViterbiTraining vt = new ViterbiTraining(genome);
+            vt.Run(1);
+
+            //string text = viterbi.Print();
+            //Console.WriteLine(text);
+            //File.WriteAllText("results.txt", text);
 
             Console.WriteLine("Press any key...");
             Console.ReadKey();
         }
 
+
+        private static void RunViterbi()
+        {
+            string genome = ReadGenome(@"data\GCF_000091665.1_ASM9166v1_genomic.fna");
+            Viterbi viterbi = new Viterbi(genome);
+            viterbi.Run();
+
+            string text = viterbi.Print();
+            Console.WriteLine(text);
+            File.WriteAllText("viterbi_results.txt", text);
+
+            Console.WriteLine("Press any key...");
+            Console.ReadKey();
+        }
 
         private static string ReadGenome(string filePath)
         {

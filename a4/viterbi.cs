@@ -16,8 +16,10 @@ namespace a4
         public const int G = 2;
         public const int T = 3;
 
+        // The sequence of A,C,G,T
         public string Observations { get; set; }
 
+        // Initial state transition probabilities
         public double[] BeginTransitions { get; set; }
 
         public double[,] Transitions { get; set; }
@@ -54,6 +56,9 @@ namespace a4
         /// </summary>
         private Dictionary<int, int> StateMap;
 
+        /// <summary>
+        /// Stores all of the hits
+        /// </summary>
         List<Tuple<int, int, int>> Hits;
 
         public Viterbi(string observations)
@@ -93,66 +98,19 @@ namespace a4
             this.StateMap.Add(1, State2);
         }
 
-        public void Traceback()
+        /// <summary>
+        /// Combine the Train and Traceback into a full "Run"
+        /// </summary>
+        public void Run()
         {
-            this.TracebackPath = new int[Observations.Length];
-
-            // Determine where to start the traceback from
-            if (V[State1, Observations.Length - 1] > V[State2, Observations.Length - 1])
-            {
-                this.TracebackPath[Observations.Length - 1] = State1;
-                this.LogProbability = V[State1, Observations.Length - 1];
-            }
-            else
-            {
-                this.TracebackPath[Observations.Length - 1] = State2;
-                this.LogProbability = V[State2, Observations.Length - 1];
-            }
-
-            // traceback
-            for (int i = Observations.Length - 2; i >= 0; i--)
-            {
-                TracebackPath[i] = Traces[TracebackPath[i + 1], i];
-            }
-
-            this.Hits = CalculateHits(this.TracebackPath);
+            this.Train();
+            this.Traceback();
         }
 
-        public static List<Tuple<int, int, int>> CalculateHits(int[] tracebackPath)
-        {
-            List<Tuple<int, int, int>> hits = new List<Tuple<int, int, int>>();
-
-            // calculate hits
-            int minLength = 2;
-            int currentState;
-            for (int i = 0; i < tracebackPath.Length; i++)
-            {
-                currentState = tracebackPath[i];
-
-                int hitStart = i;
-                while (currentState == State2 && i < tracebackPath.Length)
-                {
-                    i++;
-                    if (i >= tracebackPath.Length)
-                    {
-                        break;
-                    }
-
-                    currentState = tracebackPath[i];
-                }
-                int hitEnd = i - 1;
-                int hitLength = i - hitStart;
-
-                if (hitLength >= minLength)
-                {
-                    hits.Add(new Tuple<int, int, int>(hitStart, hitEnd, hitLength));
-                }
-            }
-
-            return hits;
-        }
-
-
+        /// <summary>
+        /// Calculate the log probabilities for each state at each observation
+        /// Construct the traceback data structure that will be used for traceback
+        /// </summary>
         public void Train()
         {
             // Set up the first state
@@ -196,6 +154,71 @@ namespace a4
 
                 }
             }
+        }
+
+        /// <summary>
+        /// Use the traceback data structure to get the most probable path
+        /// </summary>
+        public void Traceback()
+        {
+            this.TracebackPath = new int[Observations.Length];
+
+            // Determine where to start the traceback from
+            if (V[State1, Observations.Length - 1] > V[State2, Observations.Length - 1])
+            {
+                this.TracebackPath[Observations.Length - 1] = State1;
+                this.LogProbability = V[State1, Observations.Length - 1];
+            }
+            else
+            {
+                this.TracebackPath[Observations.Length - 1] = State2;
+                this.LogProbability = V[State2, Observations.Length - 1];
+            }
+
+            // traceback
+            for (int i = Observations.Length - 2; i >= 0; i--)
+            {
+                TracebackPath[i] = Traces[TracebackPath[i + 1], i];
+            }
+
+            this.Hits = CalculateHits(this.TracebackPath);
+        }
+
+        /// <summary>
+        /// Find the hits in the most probable path
+        /// </summary>
+        public static List<Tuple<int, int, int>> CalculateHits(int[] tracebackPath)
+        {
+            List<Tuple<int, int, int>> hits = new List<Tuple<int, int, int>>();
+
+            // calculate hits
+            int minLength = 50;
+            int currentState;
+            for (int i = 0; i < tracebackPath.Length; i++)
+            {
+                currentState = tracebackPath[i];
+
+                int hitStart = i;
+                while (currentState == State2 && i < tracebackPath.Length)
+                {
+                    i++;
+                    if (i >= tracebackPath.Length)
+                    {
+                        break;
+                    }
+
+                    currentState = tracebackPath[i];
+                }
+                int hitEnd = i - 1;
+                int hitLength = i - hitStart;
+
+                if (hitLength >= minLength)
+                {
+                    hits.Add(new Tuple<int, int, int>(hitStart, hitEnd, hitLength));
+                }
+            }
+
+            return hits;
         }
 
     }
