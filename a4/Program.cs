@@ -15,25 +15,14 @@ namespace a4
             Viterbi viterbi = new Viterbi(genome);
             viterbi.Train();
 
-            Console.WriteLine(PrintViterbi(viterbi));
+            string text = viterbi.Print();
+            Console.WriteLine(text);
+            File.WriteAllText("results.txt", text);
+
+            Console.WriteLine("Press any key...");
+            Console.ReadKey();
         }
 
-        private static string PrintViterbi(Viterbi viterbi)
-        {
-            StringBuilder sb = new StringBuilder();
-
-
-            return sb.ToString();
-        }
-
-        private static string PrintEmission(Viterbi viterbi)
-        {
-            StringBuilder sb = new StringBuilder();
-
-
-
-            return sb.ToString();
-        }
 
         private static string ReadGenome(string filePath)
         {

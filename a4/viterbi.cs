@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace a4
 {
-    class Viterbi
+    public partial class Viterbi
     {
         // Constants for array indexing
         public const int State1 = 0;
