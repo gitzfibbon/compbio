@@ -13,6 +13,26 @@ namespace a4
         {
             string genome = ReadGenome(@"data\GCF_000091665.1_ASM9166v1_genomic.fna");
             Viterbi viterbi = new Viterbi(genome);
+            viterbi.Train();
+
+            Console.WriteLine(PrintViterbi(viterbi));
+        }
+
+        private static string PrintViterbi(Viterbi viterbi)
+        {
+            StringBuilder sb = new StringBuilder();
+
+
+            return sb.ToString();
+        }
+
+        private static string PrintEmission(Viterbi viterbi)
+        {
+            StringBuilder sb = new StringBuilder();
+
+
+
+            return sb.ToString();
         }
 
         private static string ReadGenome(string filePath)

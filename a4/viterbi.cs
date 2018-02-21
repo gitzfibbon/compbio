@@ -9,20 +9,12 @@ namespace a4
     class Viterbi
     {
         // Constants for array indexing
-        private const int State1 = 0;
-        private const int State2 = 1;
-        private const int A = 0;
-        private const int C = 1;
-        private const int G = 2;
-        private const int T = 3;
-        //private const int State1_A = 0;
-        //private const int State1_C = 1;
-        //private const int State1_G = 2;
-        //private const int State1_T = 3;
-        //private const int State2_A = 4;
-        //private const int State2_C = 5;
-        //private const int State2_G = 6;
-        //private const int State2_T = 7;
+        public const int State1 = 0;
+        public const int State2 = 1;
+        public const int A = 0;
+        public const int C = 1;
+        public const int G = 2;
+        public const int T = 3;
 
         public string Observations { get; set; }
 
@@ -41,6 +33,11 @@ namespace a4
         /// Maps a nucleotide (A,C,G,T) to its index value
         /// </summary>
         private Dictionary<char, int> NucMap;
+
+        /// <summary>
+        /// Maps an int to a state
+        /// </summary>
+        private Dictionary<int, int> StateMap;
 
         public Viterbi(string observations)
         {
@@ -66,27 +63,49 @@ namespace a4
             this.Emissions[State2, G] = 0.3;
             this.Emissions[State2, T] = 0.2;
 
+            // Keep this in sync with the constants A,C,G,T
             this.NucMap = new Dictionary<char, int>();
             this.NucMap.Add('A', A);
             this.NucMap.Add('C', C);
             this.NucMap.Add('G', G);
             this.NucMap.Add('T', T);
+
+            // Keep this in sync with the constants State1 and State2
+            this.StateMap = new Dictionary<int, int>();
+            this.StateMap.Add(0, State1);
+            this.StateMap.Add(1, State2);
         }
 
         public void Train()
         {
+            // Set up the first state
             this.V = new double[2, this.Observations.Length];
-            this.V[State1, 0] = this.BeginTransitions[State1] * this.Emissions[State1, NucMap[Observations[0]]];
-            this.V[State2, 0] = this.BeginTransitions[State2] * this.Emissions[State2, NucMap[Observations[0]]];
+            V[State1, 0] = Math.Log(BeginTransitions[State1]) + Math.Log(Emissions[State1, NucMap[Observations[0]]]);
+            V[State2, 0] = Math.Log(BeginTransitions[State2]) + Math.Log(Emissions[State2, NucMap[Observations[0]]]);
 
-            //this.V[State1_A, 0] = this.BeginTransitions[State1] * this.
-            //this.V[State1_C, 0] = 0;
-            //this.V[State1_G, 0] = 0;
-            //this.V[State1_G, 0] = 0;
-            //this.V[State2_A, 0] = 0;
-            //this.V[State2_C, 0] = 0;
-            //this.V[State2_G, 0] = 0;
-            //this.V[State2_G, 0] = 0;
+            // i will iterate through each observation
+            for (int i = 1; i < this.Observations.Length; i++)
+            {
+                for (int j = 0; j < this.StateMap.Count; j++)
+                {
+                    int currentState = this.StateMap[j];
+                    double prevState1 = V[State1, i - 1];
+                    double prevState2 = V[State2, i - 1];
+                    double transitionFromState1 = Transitions[currentState, State1];
+                    double transitionFromState2 = Transitions[currentState, State2];
+                    int observation = NucMap[Observations[i]];
+                    double emissionFromState1 = Emissions[State1, observation];
+                    double emissionFromState2 = Emissions[State2, observation];
+
+                    double p1 = (prevState1) + Math.Log(transitionFromState1) + Math.Log(emissionFromState1);
+                    double p2 = (prevState2) + Math.Log(transitionFromState2) + Math.Log(emissionFromState2);
+
+                    this.V[currentState, i] = Math.Max(p1, p2);
+
+                }
+
+
+            }
 
 
 
