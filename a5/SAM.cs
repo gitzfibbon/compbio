@@ -25,10 +25,16 @@ namespace a5
             int counter = 0;
             string line;
 
-            StreamReader file = new System.IO.StreamReader(fileName);
+            StreamReader file = new StreamReader(fileName);
             while ((line = file.ReadLine()) != null)
             {
                 counter++;
+                string[] fields = line.Split('\t');
+
+                if (fields.Length >= 12)
+                {
+                    Read read = new Read(fields);
+                }
             }
 
             file.Close();
