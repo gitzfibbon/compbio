@@ -23,17 +23,20 @@ namespace a5
         public Read(string[] fields)
         {
             this.Fields = fields;
-
-            // Only parse if its a match
-            this.Flag = Convert.ToInt32(this.Fields[1]);
-            if (this.Flag == 0)
-            {
-                this.Parse();
-            }
         }
 
-        public void Parse()
+        /// <summary>
+        /// Returns true is this is a candidate read
+        /// </summary>
+        public bool MeetsCriteria()
         {
+            this.Flag = Convert.ToInt32(this.Fields[1]);
+            bool isUnmapped = (this.Flag & 4) == 0;
+            if (isUnmapped)
+            {
+                return false;
+            }
+
             this.Id = this.Fields[0];
             this.LocationChr = this.Fields[2];
             this.Location = Convert.ToInt32(this.Fields[3]);
@@ -41,21 +44,23 @@ namespace a5
             this.Sequence = this.Fields[9];
             this.QualityScores = this.Fields[10];
 
-            for (int i=11; i< this.Fields.Length; i++)
-            {
-                if (this.Fields[i].StartsWith("AS"))
-                {
-                    this.AS = Convert.ToInt32(this.Fields[i].Split(':')[2]);
-                }
-                else if (this.Fields[i].StartsWith("NM"))
-                {
-                    this.AS = Convert.ToInt32(this.Fields[i].Split(':')[2]);
-                }
-                else if (this.Fields[i].StartsWith("MD"))
-                {
-                    this.MD = this.Fields[i].Split(':')[2];
-                }
-            }
+            //for (int i=11; i< this.Fields.Length; i++)
+            //{
+            //    if (this.Fields[i].StartsWith("AS"))
+            //    {
+            //        this.AS = Convert.ToInt32(this.Fields[i].Split(':')[2]);
+            //    }
+            //    else if (this.Fields[i].StartsWith("NM"))
+            //    {
+            //        this.AS = Convert.ToInt32(this.Fields[i].Split(':')[2]);
+            //    }
+            //    else if (this.Fields[i].StartsWith("MD"))
+            //    {
+            //        this.MD = this.Fields[i].Split(':')[2];
+            //    }
+            //}
+
+            return true;
 
         }
     }
