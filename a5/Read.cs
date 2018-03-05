@@ -31,18 +31,35 @@ namespace a5
         public bool MeetsCriteria()
         {
             this.Flag = Convert.ToInt32(this.Fields[1]);
-            bool isUnmapped = (this.Flag & 4) == 0;
+            bool isUnmapped = (this.Flag & 0x4) != 0;
             if (isUnmapped)
             {
+                // Must be considered a match
+                return false;
+            }
+
+            this.Sequence = this.Fields[9];
+            if (!this.Sequence.EndsWith("AA"))
+            {
+                // Ends with at least some A's
+                return false;
+            }
+
+            this.Cigar = this.Fields[5];
+            if (this.Cigar == "101M")
+            {
+                // Don't keep perfect matches (we expect some A's at the end to mismatch)
                 return false;
             }
 
             this.Id = this.Fields[0];
             this.LocationChr = this.Fields[2];
             this.Location = Convert.ToInt32(this.Fields[3]);
-            this.Cigar = this.Fields[5];
-            this.Sequence = this.Fields[9];
+
+
             this.QualityScores = this.Fields[10];
+
+
 
             //for (int i=11; i< this.Fields.Length; i++)
             //{
