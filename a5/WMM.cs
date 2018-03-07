@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace a5
 {
-    public partial class MotifScan
+    public class WMM
     {
         // Every WMM: row 1 is A, 2 is C, 3 is G, 4 is T
 
@@ -15,7 +15,12 @@ namespace a5
         public double[,] WMM2a { get; set; }
         public double[,] WMM2b { get; set; }
 
-        public void InitializeWMM()
+        public WMM()
+        {
+            this.InitializeWMM();
+        }
+
+        private void InitializeWMM()
         {
             this.InitializeWMM0();
             this.InitializeWMM1();

@@ -14,13 +14,18 @@ namespace a5
         /// </summary>
         public List<Read> Candidates { get; set; }
 
-        public string FindCandidates()
+        public string FindCandidates(string fileName = null)
         {
-            string samFileShort = @"C:\Users\jordanf\Downloads\SRR5831944.sorted.sam";
             string samFileLong = @"C:\Users\jordanf\Downloads\SRR5831944.resorted2.sam";
             string samSuperset1 = @"C:\Users\jordanf\Downloads\CandidateSuperset.sam";
             string samSuperset2 = @"data\CandidateSuperset.sam";
-            return this.ReadSamFile(samSuperset1, 0, false);
+
+            if (String.IsNullOrWhiteSpace(fileName))
+            {
+                fileName = samSuperset1;
+            }
+
+            return this.ReadSamFile(fileName, 0, false);
         }
 
         private string ReadSamFile(string fileName, int maxLines = 0, bool writeToFile = false)
