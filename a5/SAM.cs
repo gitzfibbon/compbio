@@ -36,20 +36,20 @@ namespace a5
                 File.Delete(outputFileName);
             }
 
-            // File is 4GB so stream read not all at once
+            // File is 14GB so stream read not all at once
             this.Candidates = new List<Read>();
-            int totalCount = 0;
+            int totalReadCount = 0;
             string line;
 
             StreamReader file = new StreamReader(fileName);
             while ((line = file.ReadLine()) != null)
             {
-                totalCount++;
-
                 string[] fields = line.Split('\t');
 
                 if (fields.Length >= 12)
                 {
+                    totalReadCount++;
+
                     Read read = new Read(fields);
                     if (read.MeetsCriteria())
                     {
@@ -63,7 +63,7 @@ namespace a5
                     }
                 }
 
-                if (maxLines > 0 && totalCount >= maxLines)
+                if (maxLines > 0 && totalReadCount >= maxLines)
                 {
                     sbInfo.AppendLine(String.Format("Read the specified max number of lines ({0})", maxLines.ToString("N0")));
                     break;
@@ -80,8 +80,8 @@ namespace a5
             }
 
             file.Close();
-            sbInfo.AppendLine(String.Format("Read {0} lines", totalCount.ToString("N0")));
-            sbInfo.AppendLine(String.Format("Found {0} candidates", this.Candidates.Count.ToString("N0")));
+            sbInfo.AppendLine("Reads: " + totalReadCount.ToString("N0"));
+            sbInfo.AppendLine("Candidates: " + this.Candidates.Count.ToString("N0"));
 
             if (writeToFile)
             {

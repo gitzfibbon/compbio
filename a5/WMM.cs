@@ -25,19 +25,30 @@ namespace a5
 
         private void InitializeWMM0()
         {
+            // 100% consensus
+
             this.WMM0 = new double[4, 6];
 
-            for (int i=0; i< 4; i++)
+            for (int i = 0; i < 4; i++)
             {
-                for (int j=0; j<6; j++)
+                for (int j = 0; j < 6; j++)
                 {
-                    this.WMM0[i, j] = 0.25;
+                    this.WMM0[i, j] = 0;
                 }
             }
+
+            this.WMM0[0, 0] = 1;
+            this.WMM0[0, 1] = 1;
+            this.WMM0[3, 2] = 1;
+            this.WMM0[0, 3] = 1;
+            this.WMM0[0, 4] = 1;
+            this.WMM0[0, 5] = 1;
         }
 
         private void InitializeWMM1()
         {
+            // 85% consensus
+
             this.WMM1 = new double[4, 6];
 
             this.WMM1[0, 0] = 0.85;

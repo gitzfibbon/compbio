@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace a5
 {
-    class Read
+    public class Read
     {
         public string[] Fields { get; set; }
         public string Id { get; set; }
@@ -22,6 +22,8 @@ namespace a5
 
         // 0-based index of the first nt that is part of the poly-A tail
         public int CleavageSite { get; set; }
+
+        public Read() { }
 
         public Read(string[] fields)
         {
