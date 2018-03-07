@@ -20,7 +20,7 @@ namespace a5
             string samFileLong = @"C:\Users\jordanf\Downloads\SRR5831944.resorted2.sam";
             string samSuperset1 = @"C:\Users\jordanf\Downloads\CandidateSuperset.sam";
             string samSuperset2 = @"data\CandidateSuperset.sam";
-            this.ReadSamFile(samSuperset1, 0);
+            this.ReadSamFile(samSuperset1, 0, false);
         }
 
         private void ReadSamFile(string fileName, int maxLines = 0, bool writeToFile = false)
@@ -28,6 +28,11 @@ namespace a5
             StringBuilder sb = new StringBuilder();
             int batchWriteCount = 200000;
             int batchCount = 0;
+            string outputFileName = "CandidateSuperset.sam";
+            if (writeToFile && File.Exists(outputFileName))
+            {
+                File.Delete(outputFileName);
+            }
 
             // File is 4GB so stream read not all at once
             this.Candidates = new List<Read>();
@@ -66,7 +71,7 @@ namespace a5
                 {
                     // Flush
                     Console.WriteLine("Flush");
-                    File.AppendAllText("CandidateSuperset.sam", sb.ToString());
+                    File.AppendAllText(outputFileName, sb.ToString());
                     sb = new StringBuilder();
                     batchCount = 0;
                 }
@@ -79,7 +84,7 @@ namespace a5
             if (writeToFile)
             {
                 // Create a more manageable list to work with
-                File.AppendAllText("CandidateSuperset.sam", sb.ToString());
+                File.AppendAllText(outputFileName, sb.ToString());
             }
         }
 

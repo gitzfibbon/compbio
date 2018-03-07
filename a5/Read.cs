@@ -39,7 +39,7 @@ namespace a5
             }
 
             this.Sequence = this.Fields[9];
-            if (!this.Sequence.EndsWith("AA"))
+            if (!this.Sequence.EndsWith("AAAAA"))
             {
                 // Ends with at least some A's
                 return false;
@@ -52,30 +52,48 @@ namespace a5
                 return false;
             }
 
+            if (!this.Cigar.EndsWith("S"))
+            {
+                // Don't keep perfect matches (we expect some A's at the end to mismatch)
+                return false;
+            }
+
+            string softClipSizeString = String.Empty;
+            int j = this.Cigar.Length - 2; // The character prior to the final "S"
+            while (j > 0 && Char.IsDigit(this.Cigar[j]))
+            {
+                softClipSizeString = this.Cigar[j] + softClipSizeString;
+                j--;
+            }
+            int softClipSize = Convert.ToInt32(softClipSizeString.ToString());
+            string softClipped = this.Sequence.Substring(this.Sequence.Length - softClipSize);
+
+            if (!softClipped.StartsWith("AAAAA"))
+            {
+                // Soft clipped string start with some A's
+                return false;
+            }
+
             this.Id = this.Fields[0];
             this.LocationChr = this.Fields[2];
             this.Location = Convert.ToInt32(this.Fields[3]);
-
-
             this.QualityScores = this.Fields[10];
 
-
-
-            //for (int i=11; i< this.Fields.Length; i++)
-            //{
-            //    if (this.Fields[i].StartsWith("AS"))
-            //    {
-            //        this.AS = Convert.ToInt32(this.Fields[i].Split(':')[2]);
-            //    }
-            //    else if (this.Fields[i].StartsWith("NM"))
-            //    {
-            //        this.AS = Convert.ToInt32(this.Fields[i].Split(':')[2]);
-            //    }
-            //    else if (this.Fields[i].StartsWith("MD"))
-            //    {
-            //        this.MD = this.Fields[i].Split(':')[2];
-            //    }
-            //}
+            for (int i = 11; i < this.Fields.Length; i++)
+            {
+                if (this.Fields[i].StartsWith("AS"))
+                {
+                    this.AS = Convert.ToInt32(this.Fields[i].Split(':')[2]);
+                }
+                else if (this.Fields[i].StartsWith("NM"))
+                {
+                    this.NM = Convert.ToInt32(this.Fields[i].Split(':')[2]);
+                }
+                else if (this.Fields[i].StartsWith("MD"))
+                {
+                    this.MD = this.Fields[i].Split(':')[2];
+                }
+            }
 
             return true;
 
