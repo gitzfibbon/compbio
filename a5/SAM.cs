@@ -14,18 +14,20 @@ namespace a5
         /// </summary>
         public List<Read> Candidates { get; set; }
 
-        public void FindCandidates()
+        public string FindCandidates()
         {
             string samFileShort = @"C:\Users\jordanf\Downloads\SRR5831944.sorted.sam";
             string samFileLong = @"C:\Users\jordanf\Downloads\SRR5831944.resorted2.sam";
             string samSuperset1 = @"C:\Users\jordanf\Downloads\CandidateSuperset.sam";
             string samSuperset2 = @"data\CandidateSuperset.sam";
-            this.ReadSamFile(samSuperset1, 0, false);
+            return this.ReadSamFile(samSuperset1, 0, false);
         }
 
-        private void ReadSamFile(string fileName, int maxLines = 0, bool writeToFile = false)
+        private string ReadSamFile(string fileName, int maxLines = 0, bool writeToFile = false)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sbInfo = new StringBuilder();
+
+            StringBuilder sbRawCandidates = new StringBuilder();
             int batchWriteCount = 200000;
             int batchCount = 0;
             string outputFileName = "CandidateSuperset.sam";
@@ -55,7 +57,7 @@ namespace a5
 
                         if (writeToFile)
                         {
-                            sb.AppendLine(line);
+                            sbRawCandidates.AppendLine(line);
                             batchCount++;
                         }
                     }
@@ -63,31 +65,32 @@ namespace a5
 
                 if (maxLines > 0 && totalCount >= maxLines)
                 {
-                    Console.WriteLine("Read the specified max number of lines ({0})", maxLines.ToString("N0"));
+                    sbInfo.AppendLine(String.Format("Read the specified max number of lines ({0})", maxLines.ToString("N0")));
                     break;
                 }
 
                 if (writeToFile && batchCount >= batchWriteCount )
                 {
                     // Flush
-                    Console.WriteLine("Flush");
-                    File.AppendAllText(outputFileName, sb.ToString());
-                    sb = new StringBuilder();
+                    sbInfo.AppendLine(String.Format("Flush"));
+                    File.AppendAllText(outputFileName, sbRawCandidates.ToString());
+                    sbRawCandidates = new StringBuilder();
                     batchCount = 0;
                 }
             }
 
             file.Close();
-            Console.WriteLine("Read {0} lines", totalCount.ToString("N0"));
-            Console.WriteLine("Found {0} candidates", this.Candidates.Count.ToString("N0"));
+            sbInfo.AppendLine(String.Format("Read {0} lines", totalCount.ToString("N0")));
+            sbInfo.AppendLine(String.Format("Found {0} candidates", this.Candidates.Count.ToString("N0")));
 
             if (writeToFile)
             {
                 // Create a more manageable list to work with
-                File.AppendAllText(outputFileName, sb.ToString());
+                File.AppendAllText(outputFileName, sbRawCandidates.ToString());
             }
-        }
 
+            return sbInfo.ToString();
+        }
 
     }
 }

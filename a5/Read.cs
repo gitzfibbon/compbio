@@ -20,6 +20,9 @@ namespace a5
         public int NM { get; set; }
         public string MD { get; set; }
 
+        // 0-based index of the first nt that is part of the poly-A tail
+        public int CleavageSite { get; set; }
+
         public Read(string[] fields)
         {
             this.Fields = fields;
@@ -66,7 +69,8 @@ namespace a5
                 j--;
             }
             int softClipSize = Convert.ToInt32(softClipSizeString.ToString());
-            string softClipped = this.Sequence.Substring(this.Sequence.Length - softClipSize);
+            this.CleavageSite = this.Sequence.Length - softClipSize;
+            string softClipped = this.Sequence.Substring(this.CleavageSite);
 
             if (!softClipped.StartsWith("AAAAA"))
             {
