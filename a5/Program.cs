@@ -71,7 +71,9 @@ namespace a5
             sb.AppendLine("------------------");
             sb.AppendLine();
             sb.AppendLine("WMM0 Average Distance: " + CalculateAverageDistance(motifScans0));
+            sb.AppendLine("WMM0 Relative Entropy: " + WMM.CreateWMM0().RelativeEntropy);
             sb.AppendLine("WMM1 Average Distance: " + CalculateAverageDistance(motifScans1));
+            sb.AppendLine("WMM1 Relative Entropy: " + WMM.CreateWMM1().RelativeEntropy);
 
             secsToMotifScan = sw.Elapsed.TotalSeconds;
             sw.Stop();

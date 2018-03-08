@@ -53,7 +53,7 @@ namespace a5
                 {
                     char nt = subSequence[j];
                     int ntIndex = WMM.NTMap[nt];
-                    llr += WMM.LogProbabilityMatrix[ntIndex, j];
+                    llr += WMM.LLRMatrix[ntIndex, j];
                 }
 
                 // The equality in the >= is important so that we take the rightmost index (closest to cleavage site)
@@ -90,7 +90,6 @@ namespace a5
                 sb.AppendLine("  Distance: " + this.DistanceToCleavageSite);
                 sb.AppendLine("  Poly-A Left Index: " + (this.PolyALeftIndex + 1)); // 1-based
                 sb.AppendLine("  Hit Count: " + this.TotalHitCount);
-
             }
             else
             {

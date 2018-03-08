@@ -9,9 +9,10 @@ namespace a5
     public class WMM
     {
         // Row order: 0=A, 1=C, 2=G, 3=T
-        public double[,] ForegroundMatrix { get; set; }
+        public double[,] ProbabilityMatrix { get; set; }
         public double[,] BackgroundMatrix { get; set; }
-        public double[,] LogProbabilityMatrix { get; set; }
+        public double[,] LLRMatrix { get; set; }
+        public double RelativeEntropy { get; private set; }
 
         /// <summary>
         /// Map a nucleotide char (A,C,G,T) to its index in a WMM
@@ -19,11 +20,12 @@ namespace a5
         /// </summary>
         public Dictionary<char, int> NTMap;
 
-        public WMM(double[,] foregroundMatrix)
+        public WMM(double[,] probabilityMatrix)
         {
-            this.ForegroundMatrix = foregroundMatrix; // new double[4, 6];
+            this.ProbabilityMatrix = probabilityMatrix;
             this.BackgroundMatrix = CreateBackgroundMatrix();
-            this.LogProbabilityMatrix = ConvertMatrixToLogProbability(CreateProbabilityMatrix());
+            this.LLRMatrix = ConvertToLog(CreateRatioMatrix());
+            this.CalculateRelativeEntropy();
 
             this.NTMap = new Dictionary<char, int>();
             NTMap.Add('A', 0);
@@ -47,7 +49,10 @@ namespace a5
             return background;
         }
 
-        private double[,] CreateProbabilityMatrix()
+        /// <summary>
+        /// Creates a matrix with the foreground/background ratios
+        /// </summary>
+        private double[,] CreateRatioMatrix()
         {
             double[,] logProbability = new double[4, 6];
 
@@ -55,14 +60,17 @@ namespace a5
             {
                 for (int j = 0; j < 6; j++)
                 {
-                    logProbability[i, j] = ForegroundMatrix[i,j] / BackgroundMatrix[i,j];
+                    logProbability[i, j] = ProbabilityMatrix[i,j] / BackgroundMatrix[i,j];
                 }
             }
 
             return logProbability;
         }
 
-        public static double[,] ConvertMatrixToLogProbability(double[,] matrix)
+        /// <summary>
+        /// Convert all values to Log base 2
+        /// </summary>
+        public static double[,] ConvertToLog(double[,] matrix)
         {
             double[,] newMatrix = new double[4, 6];
 
@@ -75,6 +83,24 @@ namespace a5
             }
 
             return newMatrix;
+        }
+
+        private void CalculateRelativeEntropy()
+        {
+            double sum = 0;
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                {
+                    double Px = this.ProbabilityMatrix[i,j];
+                    double LLR = this.LLRMatrix[i, j];
+                    LLR = Double.IsNegativeInfinity(LLR) ? 0 : LLR;
+                    sum += Px * LLR;
+                }
+            }
+
+            this.RelativeEntropy = sum;
         }
 
         public static WMM CreateWMM0()
