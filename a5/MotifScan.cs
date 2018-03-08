@@ -53,7 +53,7 @@ namespace a5
                 {
                     char nt = subSequence[j];
                     int ntIndex = WMM.NTMap[nt];
-                    llr += Math.Log(WMM.Matrix[ntIndex, j] / BackgroundProbability);
+                    llr += WMM.LogProbabilityMatrix[ntIndex, j];
                 }
 
                 // The equality in the >= is important so that we take the rightmost index (closest to cleavage site)
@@ -72,7 +72,7 @@ namespace a5
             this.LLR = maxLLR;
             this.PolyALeftIndex = polyALeftIndex;
             this.TotalHitCount = totalHitCount;
-            this.DistanceToCleavageSite = Read.CleavageSite - this.PolyALeftIndex - MotifScan.MotifLength;
+            this.DistanceToCleavageSite = Read.CleavageSite - this.PolyALeftIndex;
             this.PolyASite = this.PolyALeftIndex >= 0 ? Read.Sequence.Substring(this.PolyALeftIndex, MotifScan.MotifLength) : String.Empty;
         }
 

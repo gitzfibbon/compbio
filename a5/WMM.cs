@@ -9,7 +9,9 @@ namespace a5
     public class WMM
     {
         // Row order: 0=A, 1=C, 2=G, 3=T
-        public double[,] Matrix { get; set; }
+        public double[,] ForegroundMatrix { get; set; }
+        public double[,] BackgroundMatrix { get; set; }
+        public double[,] LogProbabilityMatrix { get; set; }
 
         /// <summary>
         /// Map a nucleotide char (A,C,G,T) to its index in a WMM
@@ -17,9 +19,11 @@ namespace a5
         /// </summary>
         public Dictionary<char, int> NTMap;
 
-        public WMM()
+        public WMM(double[,] foregroundMatrix)
         {
-            this.Matrix = new double[4, 6];
+            this.ForegroundMatrix = foregroundMatrix; // new double[4, 6];
+            this.BackgroundMatrix = CreateBackgroundMatrix();
+            this.LogProbabilityMatrix = ConvertMatrixToLogProbability(CreateProbabilityMatrix());
 
             this.NTMap = new Dictionary<char, int>();
             NTMap.Add('A', 0);
@@ -28,70 +32,132 @@ namespace a5
             NTMap.Add('T', 3);
         }
 
-        public static WMM CreateWMM0()
+        private double[,] CreateBackgroundMatrix()
         {
-            WMM wmm = new a5.WMM();
-
-            // 100% consensus
+            double[,] background = new double[4, 6];
 
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 6; j++)
                 {
-                    wmm.Matrix[i, j] = 0;
+                    background[i, j] = 0.25;
                 }
             }
 
-            wmm.Matrix[0, 0] = 1;
-            wmm.Matrix[0, 1] = 1;
-            wmm.Matrix[3, 2] = 1;
-            wmm.Matrix[0, 3] = 1;
-            wmm.Matrix[0, 4] = 1;
-            wmm.Matrix[0, 5] = 1;
+            return background;
+        }
 
-            return wmm;
+        private double[,] CreateProbabilityMatrix()
+        {
+            double[,] logProbability = new double[4, 6];
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                {
+                    logProbability[i, j] = ForegroundMatrix[i,j] / BackgroundMatrix[i,j];
+                }
+            }
+
+            return logProbability;
+        }
+
+        public static double[,] ConvertMatrixToLogProbability(double[,] matrix)
+        {
+            double[,] newMatrix = new double[4, 6];
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                {
+                    newMatrix[i, j] = Math.Log(matrix[i,j], 2);
+                }
+            }
+
+            return newMatrix;
+        }
+
+        public static WMM CreateWMM0()
+        {
+            // 100% consensus
+
+            double[,] foregroundMatrix = new double[4, 6];
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                {
+                    foregroundMatrix[i, j] = 0;
+                }
+            }
+
+            foregroundMatrix[0, 0] = 1;
+            foregroundMatrix[0, 1] = 1;
+            foregroundMatrix[3, 2] = 1;
+            foregroundMatrix[0, 3] = 1;
+            foregroundMatrix[0, 4] = 1;
+            foregroundMatrix[0, 5] = 1;
+
+            return new WMM(foregroundMatrix);
         }
 
         public static WMM CreateWMM1()
         {
             // 85% consensus
 
-            WMM wmm = new WMM();
+            double[,] foregroundMatrix = new double[4, 6];
 
-            wmm.Matrix[0, 0] = 0.85;
-            wmm.Matrix[1, 0] = 0.05;
-            wmm.Matrix[2, 0] = 0.05;
-            wmm.Matrix[3, 0] = 0.05;
+            foregroundMatrix[0, 0] = 0.85;
+            foregroundMatrix[1, 0] = 0.05;
+            foregroundMatrix[2, 0] = 0.05;
+            foregroundMatrix[3, 0] = 0.05;
 
-            wmm.Matrix[0, 1] = 0.85;
-            wmm.Matrix[1, 1] = 0.05;
-            wmm.Matrix[2, 1] = 0.05;
-            wmm.Matrix[3, 1] = 0.05;
+            foregroundMatrix[0, 1] = 0.85;
+            foregroundMatrix[1, 1] = 0.05;
+            foregroundMatrix[2, 1] = 0.05;
+            foregroundMatrix[3, 1] = 0.05;
 
-            wmm.Matrix[0, 2] = 0.05;
-            wmm.Matrix[1, 2] = 0.05;
-            wmm.Matrix[2, 2] = 0.05;
-            wmm.Matrix[3, 2] = 0.85;
+            foregroundMatrix[0, 2] = 0.05;
+            foregroundMatrix[1, 2] = 0.05;
+            foregroundMatrix[2, 2] = 0.05;
+            foregroundMatrix[3, 2] = 0.85;
 
-            wmm.Matrix[0, 3] = 0.85;
-            wmm.Matrix[1, 3] = 0.05;
-            wmm.Matrix[2, 3] = 0.05;
-            wmm.Matrix[3, 3] = 0.05;
+            foregroundMatrix[0, 3] = 0.85;
+            foregroundMatrix[1, 3] = 0.05;
+            foregroundMatrix[2, 3] = 0.05;
+            foregroundMatrix[3, 3] = 0.05;
 
-            wmm.Matrix[0, 4] = 0.85;
-            wmm.Matrix[1, 4] = 0.05;
-            wmm.Matrix[2, 4] = 0.05;
-            wmm.Matrix[3, 4] = 0.05;
+            foregroundMatrix[0, 4] = 0.85;
+            foregroundMatrix[1, 4] = 0.05;
+            foregroundMatrix[2, 4] = 0.05;
+            foregroundMatrix[3, 4] = 0.05;
 
-            wmm.Matrix[0, 5] = 0.85;
-            wmm.Matrix[1, 5] = 0.05;
-            wmm.Matrix[2, 5] = 0.05;
-            wmm.Matrix[3, 5] = 0.05;
+            foregroundMatrix[0, 5] = 0.85;
+            foregroundMatrix[1, 5] = 0.05;
+            foregroundMatrix[2, 5] = 0.05;
+            foregroundMatrix[3, 5] = 0.05;
 
-            return wmm;
+            return new a5.WMM(foregroundMatrix);
         }
 
+        public static string PrintMatrix(double[,] matrix)
+        {
+            StringBuilder sb = new StringBuilder();
 
+            int padding = 4;
+
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    sb.Append(matrix[i,j].ToString().PadLeft(padding));
+                }
+
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
 
     }
 }
