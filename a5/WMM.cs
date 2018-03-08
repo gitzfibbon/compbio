@@ -8,94 +8,89 @@ namespace a5
 {
     public class WMM
     {
-        // Every WMM: row 1 is A, 2 is C, 3 is G, 4 is T
+        // Row order: 0=A, 1=C, 2=G, 3=T
+        public double[,] Matrix { get; set; }
 
-        public double[,] WMM0 { get; set; }
-        public double[,] WMM1 { get; set; }
-        public double[,] WMM2a { get; set; }
-        public double[,] WMM2b { get; set; }
+        /// <summary>
+        /// Map a nucleotide char (A,C,G,T) to its index in a WMM
+        /// Matches Row order: 0=A, 1=C, 2=G, 3=T
+        /// </summary>
+        public Dictionary<char, int> NTMap;
 
         public WMM()
         {
-            this.InitializeWMM();
+            this.Matrix = new double[4, 6];
+
+            this.NTMap = new Dictionary<char, int>();
+            NTMap.Add('A', 0);
+            NTMap.Add('C', 1);
+            NTMap.Add('G', 2);
+            NTMap.Add('T', 3);
         }
 
-        private void InitializeWMM()
+        public static WMM CreateWMM0()
         {
-            this.InitializeWMM0();
-            this.InitializeWMM1();
-            this.InitializeWMM2a();
-            this.InitializeWMM2b();
-        }
+            WMM wmm = new a5.WMM();
 
-        private void InitializeWMM0()
-        {
             // 100% consensus
-
-            this.WMM0 = new double[4, 6];
 
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 6; j++)
                 {
-                    this.WMM0[i, j] = 0;
+                    wmm.Matrix[i, j] = 0;
                 }
             }
 
-            this.WMM0[0, 0] = 1;
-            this.WMM0[0, 1] = 1;
-            this.WMM0[3, 2] = 1;
-            this.WMM0[0, 3] = 1;
-            this.WMM0[0, 4] = 1;
-            this.WMM0[0, 5] = 1;
+            wmm.Matrix[0, 0] = 1;
+            wmm.Matrix[0, 1] = 1;
+            wmm.Matrix[3, 2] = 1;
+            wmm.Matrix[0, 3] = 1;
+            wmm.Matrix[0, 4] = 1;
+            wmm.Matrix[0, 5] = 1;
+
+            return wmm;
         }
 
-        private void InitializeWMM1()
+        public static WMM CreateWMM1()
         {
             // 85% consensus
 
-            this.WMM1 = new double[4, 6];
+            WMM wmm = new WMM();
 
-            this.WMM1[0, 0] = 0.85;
-            this.WMM1[1, 0] = 0.05;
-            this.WMM1[2, 0] = 0.05;
-            this.WMM1[3, 0] = 0.05;
+            wmm.Matrix[0, 0] = 0.85;
+            wmm.Matrix[1, 0] = 0.05;
+            wmm.Matrix[2, 0] = 0.05;
+            wmm.Matrix[3, 0] = 0.05;
 
-            this.WMM1[0, 1] = 0.85;
-            this.WMM1[1, 1] = 0.05;
-            this.WMM1[2, 1] = 0.05;
-            this.WMM1[3, 1] = 0.05;
+            wmm.Matrix[0, 1] = 0.85;
+            wmm.Matrix[1, 1] = 0.05;
+            wmm.Matrix[2, 1] = 0.05;
+            wmm.Matrix[3, 1] = 0.05;
 
-            this.WMM1[0, 2] = 0.05;
-            this.WMM1[1, 2] = 0.05;
-            this.WMM1[2, 2] = 0.05;
-            this.WMM1[3, 2] = 0.85;
+            wmm.Matrix[0, 2] = 0.05;
+            wmm.Matrix[1, 2] = 0.05;
+            wmm.Matrix[2, 2] = 0.05;
+            wmm.Matrix[3, 2] = 0.85;
 
-            this.WMM1[0, 3] = 0.85;
-            this.WMM1[1, 3] = 0.05;
-            this.WMM1[2, 3] = 0.05;
-            this.WMM1[3, 3] = 0.05;
+            wmm.Matrix[0, 3] = 0.85;
+            wmm.Matrix[1, 3] = 0.05;
+            wmm.Matrix[2, 3] = 0.05;
+            wmm.Matrix[3, 3] = 0.05;
 
-            this.WMM1[0, 4] = 0.85;
-            this.WMM1[1, 4] = 0.05;
-            this.WMM1[2, 4] = 0.05;
-            this.WMM1[3, 4] = 0.05;
+            wmm.Matrix[0, 4] = 0.85;
+            wmm.Matrix[1, 4] = 0.05;
+            wmm.Matrix[2, 4] = 0.05;
+            wmm.Matrix[3, 4] = 0.05;
 
-            this.WMM1[0, 5] = 0.85;
-            this.WMM1[1, 5] = 0.05;
-            this.WMM1[2, 5] = 0.05;
-            this.WMM1[3, 5] = 0.05;
+            wmm.Matrix[0, 5] = 0.85;
+            wmm.Matrix[1, 5] = 0.05;
+            wmm.Matrix[2, 5] = 0.05;
+            wmm.Matrix[3, 5] = 0.05;
+
+            return wmm;
         }
 
-        private void InitializeWMM2a()
-        {
-            this.WMM2a = new double[4, 6];
-        }
-
-        private void InitializeWMM2b()
-        {
-            this.WMM2b = new double[4, 6];
-        }
 
 
     }

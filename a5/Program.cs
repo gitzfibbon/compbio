@@ -30,68 +30,50 @@ namespace a5
 
             Sam sam = new Sam();
             string info = sam.FindCandidates(@"data\hw5-candidates-alpha.txt");
+            sb.AppendLine("------------------");
+            sb.AppendLine("Info");
+            sb.AppendLine("------------------");
             sb.Append(info);
             sb.AppendLine();
 
             secsToFindCandidates = sw.Elapsed.TotalSeconds;
             sw.Reset();
 
-            double distanceSum0 = 0;
-            int includedInDistance0Avg = 0;
-            double distanceSum1 = 0;
-            int includedInDistance1Avg = 0;
-
-            int i = 0;
+            List<MotifScan> motifScans0 = new List<MotifScan>();
+            List<MotifScan> motifScans1 = new List<MotifScan>();
             foreach (Read read in sam.Candidates)
             {
-                MotifScan motifScan = new MotifScan();
-                motifScan.ScanAll(read);
+                MotifScan motifScan0 = new MotifScan("WMM0", WMM.CreateWMM0(), read);
+                motifScan0.Scan();
+                motifScans0.Add(motifScan0);
 
-                sb.AppendLine("Read Candidate: " + (i + 1));
-                if (motifScan.PolyALeftIndex_WMM0 >= 0)
-                {
-                    sb.AppendLine("  WMM0 LLR: " + motifScan.LLR_WMM0);
-                    sb.AppendLine("  WMM0 Poly-A Site: " + read.Sequence.Substring(motifScan.PolyALeftIndex_WMM0, MotifScan.MotifLength));
-                    int distance = read.CleavageSite - motifScan.PolyALeftIndex_WMM0 - MotifScan.MotifLength;
-                    distanceSum0 += distance;
-                    includedInDistance0Avg++;
-                    sb.AppendLine("  WMM0 Distance: " + distance);
-                    sb.AppendLine("  WMM0 Poly-A Left Index: " + motifScan.PolyALeftIndex_WMM0);
-                    sb.AppendLine("  WMM1 Hit Count: " + motifScan.HitCount_WMM0);
-                    
-                }
-                else
-                {
-                    sb.AppendLine("  WMM0: No Poly-A Site found");
-                }
+                MotifScan motifScan1 = new MotifScan("WMM1", WMM.CreateWMM1(), read);
+                motifScan1.Scan();
+                motifScans1.Add(motifScan1);
 
-                if (motifScan.PolyALeftIndex_WMM1 >= 0)
-                {
-                    sb.AppendLine("  WMM1 LLR: " + motifScan.LLR_WMM1);
-                    sb.AppendLine("  WMM1 Poly-A Site: " + read.Sequence.Substring(motifScan.PolyALeftIndex_WMM1, MotifScan.MotifLength));
-                    int distance = read.CleavageSite - motifScan.PolyALeftIndex_WMM1 - MotifScan.MotifLength;
-                    distanceSum1 += distance;
-                    includedInDistance1Avg++;
-                    sb.AppendLine("  WMM1 Distance: " + distance);
-                    sb.AppendLine("  WMM1 Poly-A Left Index: " + motifScan.PolyALeftIndex_WMM1);
-                    sb.AppendLine("  WMM1 Hit Count: " + motifScan.HitCount_WMM1);
-                }
-                else
-                {
-                    sb.AppendLine("  WMM1: No Poly-A Site found");
-                }
 
-                sb.AppendLine();
-
-                i++;
+               
             }
 
-            sb.AppendLine("WMM0 Average Distance: " + distanceSum0 / includedInDistance0Avg);
-            sb.AppendLine("WMM1 Average Distance: " + distanceSum1 / includedInDistance1Avg);
+            for (int i=0; i<motifScans0.Count; i++)
+            {
+                sb.AppendLine("------------------");
+                sb.AppendLine("Read Candidate: " + (i + 1));
+                sb.AppendLine("------------------");
+                sb.AppendLine(motifScans0[i].Print());
+                sb.AppendLine(motifScans1[i].Print());
 
+            }
+
+            sb.AppendLine();
+            sb.AppendLine("------------------");
+            sb.AppendLine("Summary");
+            sb.AppendLine("------------------");
+            sb.AppendLine();
+            sb.AppendLine("WMM0 Average Distance: " + CalculateAverageDistance(motifScans0));
+            sb.AppendLine("WMM1 Average Distance: " + CalculateAverageDistance(motifScans1));
 
             secsToMotifScan = sw.Elapsed.TotalSeconds;
-
             sw.Stop();
 
             sb.AppendLine();
@@ -102,6 +84,23 @@ namespace a5
 
             return sb.ToString();
 
+        }
+
+        private static double CalculateAverageDistance(List<MotifScan> motifScans)
+        {
+            double sum = 0;
+            int count = 0;
+
+            foreach (MotifScan motifScan in motifScans)
+            {
+                if (motifScan.PolyALeftIndex >= 0)
+                {
+                    sum += motifScan.DistanceToCleavageSite;
+                    count++;
+                }
+            }
+
+            return sum / count;
         }
     }
 }

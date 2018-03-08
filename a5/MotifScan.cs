@@ -11,83 +11,93 @@ namespace a5
         public const int MotifLength = 6;
         private const double BackgroundProbability = 0.25;
 
-        public WMM WMM { get; set; }
-
-        public double LLR_WMM0 { get; set; }
-        public int PolyALeftIndex_WMM0 { get; set; }
-        public int HitCount_WMM0 { get; set; }
-
-        public double LLR_WMM1 { get; set; }
-        public int PolyALeftIndex_WMM1 { get; set; }
-        public int HitCount_WMM1 { get; set; }
-
         /// <summary>
-        /// Map a nucleotide char (A,C,G,T) to its index in a WMM
+        /// Eg. WMM0, WMM1
         /// </summary>
-        private Dictionary<char, int> ntIndex;
+        public string Label { get; private set; }
 
-        public MotifScan()
+        public WMM WMM { get; private set; }
+        public double LLR { get; private set; }
+        public int PolyALeftIndex { get; private set; }
+        public int TotalHitCount { get; private set; }
+        public int DistanceToCleavageSite { get; private set; }
+        public string PolyASite { get; private set; }
+        public Read Read { get; private set; }
+
+        public MotifScan(string label, WMM wmm, Read read)
         {
-            this.WMM = new WMM();
-
-            this.ntIndex = new Dictionary<char, int>();
-            ntIndex.Add('A', 0);
-            ntIndex.Add('C', 1);
-            ntIndex.Add('G', 2);
-            ntIndex.Add('T', 3);
-        }
-
-        public void ScanAll(Read read)
-        {
-            Tuple<double, int, int> wmm0Result = Scan(read, WMM.WMM0);
-            this.LLR_WMM0 = wmm0Result.Item1;
-            this.PolyALeftIndex_WMM0 = wmm0Result.Item2;
-            this.HitCount_WMM0 = wmm0Result.Item3;
-
-            Tuple<double, int, int> wmm1Result = Scan(read, WMM.WMM1);
-            this.LLR_WMM1 = wmm1Result.Item1;
-            this.PolyALeftIndex_WMM1 = wmm1Result.Item2;
-            this.HitCount_WMM1 = wmm1Result.Item3;
+            this.Label = label;
+            this.WMM = wmm;
+            this.Read = read;
         }
 
         /// <summary>
-        /// Returns LLR, 0-based index of motif position closest to cleavage site, hit count
-        /// Eg. CGAATAAACGCG.AAAAAA returns 7 as index which is the last A in AATAAA
+        /// Determines LLR, 0-based left side index of motif position closest to cleavage site, hit count
+        /// Eg. CGAATAAACGCG.AAAAAA determines 2 as index which is the first A in AATAAA
         /// </summary>
         /// <returns></returns>
-        public Tuple<double, int, int> Scan(Read read, double[,] wmm)
+        public void Scan()
         {
             double maxLLR = 0;
-            int maxLLRIndex = -1; // From the left side of the 6 element sub sequence
-            int hitCount = 0;
+            int polyALeftIndex = -1; // From the left side of the 6 element sub sequence
+            int totalHitCount = 0;
 
             // Scan from left to right (cleavage site)
-            for (int i = 0; i + MotifLength <= read.CleavageSite; i++)
+            for (int i = 0; i + MotifLength <= Read.CleavageSite; i++)
             {
-                string subSequence = read.Sequence.Substring(i, MotifLength);
+                string subSequence = Read.Sequence.Substring(i, MotifLength);
 
                 // Calculate probability the subSequence is the poly-A signal
                 double llr = 0;
                 for (int j = 0; j < 6; j++)
                 {
                     char nt = subSequence[j];
-                    llr += Math.Log(wmm[ntIndex[nt],j] / BackgroundProbability);
+                    int ntIndex = WMM.NTMap[nt];
+                    llr += Math.Log(WMM.Matrix[ntIndex, j] / BackgroundProbability);
                 }
 
                 // The equality in the >= is important so that we take the rightmost index (closest to cleavage site)
                 if (llr > 0)
                 {
-                    hitCount++;
+                    totalHitCount++;
 
                     if (llr >= maxLLR)
                     {
                         maxLLR = llr;
-                        maxLLRIndex = i;
+                        polyALeftIndex = i;
                     }
                 }
             }
 
-            return new Tuple<double, int, int>(maxLLR, maxLLRIndex, hitCount);
+            this.LLR = maxLLR;
+            this.PolyALeftIndex = polyALeftIndex;
+            this.TotalHitCount = totalHitCount;
+            this.DistanceToCleavageSite = Read.CleavageSite - this.PolyALeftIndex - MotifScan.MotifLength;
+            this.PolyASite = this.PolyALeftIndex >= 0 ? Read.Sequence.Substring(this.PolyALeftIndex, MotifScan.MotifLength) : String.Empty;
+        }
+
+        public string Print()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine(this.Label + ":");
+
+            if (this.PolyALeftIndex >= 0)
+            {
+                sb.AppendLine("  LLR: " + this.LLR);
+                sb.AppendLine("  Poly-A Site: " + this.PolyASite);
+                sb.AppendLine("  Cleavage Site: " + (this.Read.CleavageSite + 1)); // 1-based
+                sb.AppendLine("  Distance: " + this.DistanceToCleavageSite);
+                sb.AppendLine("  Poly-A Left Index: " + (this.PolyALeftIndex + 1)); // 1-based
+                sb.AppendLine("  Hit Count: " + this.TotalHitCount);
+
+            }
+            else
+            {
+                sb.AppendLine("  No Poly-A Site found");
+            }
+
+            return sb.ToString();
         }
     }
 }

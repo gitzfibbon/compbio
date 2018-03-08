@@ -8,17 +8,17 @@ namespace a5
 {
     public class Read
     {
-        public string[] Fields { get; set; }
-        public string Id { get; set; }
-        public int Flag { get; set; }
-        public string LocationChr { get; set; }
-        public int Location { get; set; }
-        public string Cigar { get; set; }
+        public string[] Fields { get; private set; }
+        public string Id { get; private set; }
+        public int Flag { get; private set; }
+        public string LocationChr { get; private set; }
+        public int Location { get; private set; }
+        public string Cigar { get; private set; }
         public string Sequence { get; set; }
-        public string QualityScores { get; set; }
-        public int AS { get; set; }
-        public int NM { get; set; }
-        public string MD { get; set; }
+        public string QualityScores { get; private set; }
+        public int AS { get; private set; }
+        public int NM { get; private set; }
+        public string MD { get; private set; }
 
         // 0-based index of the first nt that is part of the poly-A tail
         public int CleavageSite { get; set; }

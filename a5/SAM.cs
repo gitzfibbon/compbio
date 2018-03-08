@@ -85,8 +85,8 @@ namespace a5
             }
 
             file.Close();
-            sbInfo.AppendLine("Reads: " + totalReadCount.ToString("N0"));
-            sbInfo.AppendLine("Candidates: " + this.Candidates.Count.ToString("N0"));
+            sbInfo.AppendLine("Total Reads: " + totalReadCount.ToString("N0"));
+            sbInfo.AppendLine("Candidates Chosen: " + this.Candidates.Count.ToString("N0"));
 
             if (writeToFile)
             {
