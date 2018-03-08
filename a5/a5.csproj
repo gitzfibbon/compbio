@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Meme.cs" />
     <Compile Include="WMM.cs" />
     <Compile Include="MotifScan.cs" />
     <Compile Include="Program.cs" />

@@ -49,7 +49,7 @@ namespace a5
 
                 // Calculate probability the subSequence is the poly-A signal
                 double llr = 0;
-                for (int j = 0; j < 6; j++)
+                for (int j = 0; j < MotifScan.MotifLength; j++)
                 {
                     char nt = subSequence[j];
                     int ntIndex = WMM.NTMap[nt];

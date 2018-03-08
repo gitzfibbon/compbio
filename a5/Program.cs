@@ -39,8 +39,12 @@ namespace a5
             secsToFindCandidates = sw.Elapsed.TotalSeconds;
             sw.Reset();
 
+            Meme meme = new Meme(sam, WMM.CreateWMM1());
+            WMM wmm2a = meme.Run();
+
             List<MotifScan> motifScans0 = new List<MotifScan>();
             List<MotifScan> motifScans1 = new List<MotifScan>();
+            List<MotifScan> motifScans2a = new List<MotifScan>();
             foreach (Read read in sam.Candidates)
             {
                 MotifScan motifScan0 = new MotifScan("WMM0", WMM.CreateWMM0(), read);
@@ -51,8 +55,9 @@ namespace a5
                 motifScan1.Scan();
                 motifScans1.Add(motifScan1);
 
-
-               
+                MotifScan motifScan2a = new MotifScan("WMM2a", wmm2a, read);
+                motifScan2a.Scan();
+                motifScans2a.Add(motifScan2a);
             }
 
             for (int i=0; i<motifScans0.Count; i++)
@@ -62,7 +67,7 @@ namespace a5
                 sb.AppendLine("------------------");
                 sb.AppendLine(motifScans0[i].Print());
                 sb.AppendLine(motifScans1[i].Print());
-
+                sb.AppendLine(motifScans2a[i].Print());
             }
 
             sb.AppendLine();
@@ -74,6 +79,8 @@ namespace a5
             sb.AppendLine("WMM0 Relative Entropy: " + WMM.CreateWMM0().RelativeEntropy);
             sb.AppendLine("WMM1 Average Distance: " + CalculateAverageDistance(motifScans1));
             sb.AppendLine("WMM1 Relative Entropy: " + WMM.CreateWMM1().RelativeEntropy);
+            sb.AppendLine("WMM2a Average Distance: " + CalculateAverageDistance(motifScans2a));
+            sb.AppendLine("WMM2a Relative Entropy: " + wmm2a.RelativeEntropy);
 
             secsToMotifScan = sw.Elapsed.TotalSeconds;
             sw.Stop();

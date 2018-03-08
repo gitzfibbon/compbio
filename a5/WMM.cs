@@ -18,7 +18,7 @@ namespace a5
         /// Map a nucleotide char (A,C,G,T) to its index in a WMM
         /// Matches Row order: 0=A, 1=C, 2=G, 3=T
         /// </summary>
-        public Dictionary<char, int> NTMap;
+        public static Dictionary<char, int> NTMap;
 
         public WMM(double[,] probabilityMatrix)
         {
@@ -27,7 +27,7 @@ namespace a5
             this.LLRMatrix = ConvertToLog(CreateRatioMatrix());
             this.CalculateRelativeEntropy();
 
-            this.NTMap = new Dictionary<char, int>();
+            WMM.NTMap = new Dictionary<char, int>();
             NTMap.Add('A', 0);
             NTMap.Add('C', 1);
             NTMap.Add('G', 2);
