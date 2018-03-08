@@ -14,17 +14,8 @@ namespace a5
         /// </summary>
         public List<Read> Candidates { get; set; }
 
-        public string FindCandidates(string fileName = null)
+        public string FindCandidates(string fileName)
         {
-            string samFileLong = @"C:\Users\jordanf\Downloads\SRR5831944.resorted2.sam";
-            string samSuperset1 = @"C:\Users\jordanf\Downloads\CandidateSuperset.sam";
-            string samSuperset2 = @"data\CandidateSuperset.sam";
-
-            if (String.IsNullOrWhiteSpace(fileName))
-            {
-                fileName = samSuperset1;
-            }
-
             return this.ReadSamFile(fileName, 0, false);
         }
 

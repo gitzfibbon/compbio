@@ -14,6 +14,7 @@ namespace a5
             string output = Program.Run();
             //string output = Program.Run2a();
 
+            System.IO.File.WriteAllText("results.txt", output);
             Console.WriteLine(output);
             Console.WriteLine("Press any key...");
             Console.ReadKey();
@@ -72,8 +73,8 @@ namespace a5
             
             // Filtered down, managable set of just the 0x4 matches
             Sam sam2b = new Sam();
-            //string fileName2b = @"C:\Users\jordanf\Downloads\SRR5831944.resorted2.sam";
-            string fileName2b = @"C:\Users\jordanf\Downloads\CandidateSuperset.sam";
+            string fileName2b = @"C:\Users\jordanf\Downloads\SRR5831944.resorted2.sam";
+            //string fileName2b = @"C:\Users\jordanf\Downloads\CandidateSuperset.sam";
             string info2b = sam2b.FindCandidates(fileName2b);
 
             sb.AppendLine();
@@ -106,10 +107,6 @@ namespace a5
                 motifScans2b.Add(motifScan2b);
             }
 
-            sb.AppendLine("------------------");
-            sb.AppendLine("Results");
-            sb.AppendLine("------------------");
-            sb.AppendLine();
             sb.AppendLine("WMM0 Average Distance: " + CalculateAverageDistance(motifScans0));
             sb.AppendLine("WMM0 Relative Entropy: " + WMM.CreateWMM0().RelativeEntropy);
             sb.AppendLine("WMM0 Candidates with at least one hit: " + motifScans0.Count(ms => ms.TotalHitCount > 0));
