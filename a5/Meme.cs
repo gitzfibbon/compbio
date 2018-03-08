@@ -19,20 +19,37 @@ namespace a5
             this.InitialWMM = initialWMM;
         }
 
+        /// <summary>
+        /// Run through one iteration of MEME
+        /// </summary>
         public WMM Run()
         {
+            double[,] result = new double[4, 6];
+
             // Go through each candidate
             foreach (Read candidate in Sam.Candidates)
             {
-                ProcessCandidate(candidate);
+                double[,] candidateResult = ProcessCandidate(candidate);
+
+                // Update the result with newly processed candidate
+                for (int i=0; i<4; i++)
+                {
+                    for (int j = 0; j < 6; j++)
+                    {
+                        result[i, j] += candidateResult[i, j];
+                    }
+                }
             }
 
-
-
+            result = Normalize(result);
+            this.NewWMM = new WMM(result);
             return this.NewWMM;
         }
 
-        private void ProcessCandidate(Read candidate)
+        /// <summary>
+        /// Process one full sequence and return its contribution to the updated WMM
+        /// </summary>
+        private double[,] ProcessCandidate(Read candidate)
         {
             double[,] probabilityAccumulator = new double[4, 6];
             double[,] logAccumulator = new double[4, 6];
@@ -62,10 +79,9 @@ namespace a5
                     logAccumulator[ntIndex, j] += llr;
                 }
             }
-
-            
-            Normalize(probabilityAccumulator);
-            Normalize(logAccumulator);
+ 
+            // Normalize(logAccumulator);
+            return Normalize(probabilityAccumulator);
         }
 
         /// <summary>
@@ -75,6 +91,7 @@ namespace a5
         /// <returns></returns>
         private double[,] Normalize(double[,] matrix)
         {
+            
             double[,] normalized = new double[4, 6];
 
             double columnSum = 0;
@@ -108,7 +125,6 @@ namespace a5
                 //}
 
             }
-
 
             return normalized;
         }

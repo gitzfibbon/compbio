@@ -85,7 +85,7 @@ namespace a5
             return newMatrix;
         }
 
-        private void CalculateRelativeEntropy()
+        public void CalculateRelativeEntropy()
         {
             double sum = 0;
 
