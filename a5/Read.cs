@@ -44,7 +44,7 @@ namespace a5
             }
 
             this.Sequence = this.Fields[9];
-            if (!this.Sequence.EndsWith("AAAAA"))
+            if (!this.Sequence.EndsWith("AAAA"))
             {
                 // Ends with at least some A's
                 return false;
@@ -74,7 +74,7 @@ namespace a5
             this.CleavageSite = this.Sequence.Length - softClipSize;
             string softClipped = this.Sequence.Substring(this.CleavageSite);
 
-            if (!softClipped.StartsWith("AAAAA"))
+            if (!softClipped.StartsWith("AAAA"))
             {
                 // Soft clipped string start with some A's
                 return false;

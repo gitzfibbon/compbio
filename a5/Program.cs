@@ -70,11 +70,11 @@ namespace a5
             sb.AppendLine("WMM2a Candidates with at least one hit: " + motifScans2a.Count(ms => ms.TotalHitCount > 0));
             sb.AppendLine();
 
-            
+
             // Filtered down, managable set of just the 0x4 matches
             Sam sam2b = new Sam();
             string fileName2b = @"C:\Users\jordanf\Downloads\SRR5831944.resorted2.sam";
-            //string fileName2b = @"C:\Users\jordanf\Downloads\CandidateSuperset.sam";
+            //string fileName2b = @"data\CandidateSuperset.sam";
             string info2b = sam2b.FindCandidates(fileName2b);
 
             sb.AppendLine();
@@ -118,6 +118,10 @@ namespace a5
             sb.AppendLine("WMM2b Average Distance: " + CalculateAverageDistance(motifScans2b));
             sb.AppendLine("WMM2b Relative Entropy: " + wmm2b.RelativeEntropy);
             sb.AppendLine("WMM2b Candidates with at least one hit: " + motifScans2b.Count(ms => ms.TotalHitCount > 0));
+
+            PrintDistanceHistogram(motifScans0, "histogram0.csv");
+            PrintDistanceHistogram(motifScans1, "histogram1.csv");
+            PrintDistanceHistogram(motifScans2b, "histogram2b.csv");
 
             return sb.ToString();
         }
@@ -165,7 +169,7 @@ namespace a5
                 motifScans2a.Add(motifScan2a);
             }
 
-            for (int i=0; i<motifScans0.Count; i++)
+            for (int i = 0; i < motifScans0.Count; i++)
             {
                 sb.AppendLine("------------------");
                 sb.AppendLine("Read Candidate: " + (i + 1));
@@ -215,6 +219,28 @@ namespace a5
             }
 
             return sum / count;
+        }
+
+        private static void PrintDistanceHistogram(List<MotifScan> motifScans, string fileName)
+        {
+            // Key is the distance, value is the count for that distance
+            int[] histogram = new int[101];
+
+            foreach (MotifScan motifScan in motifScans)
+            {
+                int distance = motifScan.DistanceToCleavageSite;
+                histogram[distance]++;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Distance,Count");
+            for (int i = 0; i < 101; i++)
+            {
+                sb.AppendLine(i + "," + histogram[i]);
+            }
+
+
+            System.IO.File.WriteAllText(fileName, sb.ToString());
         }
     }
 }
